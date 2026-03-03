@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import UserService from '../../services/UserService';
 import { 
-    UserCircle, Shield, Activity, Calendar, TrendingUp, ArrowLeft, Loader2, AlertCircle 
+    UserCircle, Shield, Activity, Calendar, TrendingUp, ArrowLeft, Loader2, AlertCircle, Award 
 } from "lucide-react";
 
 export function DetailUser() {
@@ -28,88 +28,114 @@ export function DetailUser() {
     }, [id]);
 
     if (loading) return (
-        <div className="flex flex-col items-center justify-center py-20 text-gray-500">
-            <Loader2 className="h-10 w-10 animate-spin mb-4" />
-            <p className="text-lg font-medium">Cargando perfil...</p>
+        <div className="flex flex-col items-center justify-center min-h-[60vh] text-zinc-500 bg-black">
+            <Loader2 className="h-12 w-12 animate-spin mb-4 text-blue-500" />
+            <p className="text-xl font-black italic tracking-widest uppercase">Verificando Credenciales...</p>
         </div>
     );
     
     if (error) return (
-        <div className="mx-auto max-w-3xl mt-10 p-4 bg-red-50 border border-red-200 rounded-lg flex items-center gap-3 text-red-700">
-            <AlertCircle className="h-6 w-6" />
-            <p><strong>Error:</strong> {error}</p>
+        <div className="mx-auto max-w-3xl mt-10 p-6 bg-zinc-900 border border-red-900/50 rounded-2xl flex items-center gap-4 text-red-400 shadow-2xl">
+            <AlertCircle className="h-8 w-8 text-red-600" />
+            <p className="text-lg font-bold italic uppercase">Error de Acceso: {error}</p>
         </div>
     );
 
     return (
-        <div className="max-w-4xl mx-auto py-12 px-6">
-            <div className="flex flex-col md:flex-row gap-8 items-start">
+        <div className="min-h-screen bg-black text-zinc-100 py-12 px-4 md:px-8">
+            <div className="max-w-5xl mx-auto">
                 
-                {/* Sección lateral (Avatar construido con Tailwind) */}
-                <div className="w-full md:w-1/4 bg-gray-50 border border-gray-200 rounded-2xl flex flex-col items-center justify-center p-8">
-                    <UserCircle className="h-32 w-32 text-gray-400 mb-4" />
-                    <span className={`px-4 py-1 rounded-full text-sm font-bold ${user.data.estado === 'Activo' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-                        {user.data.estado}
-                    </span>
-                </div>
+                {/* Botón Volver Estilizado */}
+                <button 
+                    onClick={() => navigate(-1)}
+                    className="mb-8 flex items-center gap-2 text-zinc-500 hover:text-blue-400 transition-all group uppercase text-xs font-black tracking-[0.2em]"
+                >
+                    <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" /> Volver al Listado
+                </button>
 
-                {/* Sección central (Detalles) */}
-                <div className="flex-1 space-y-6 w-full">
-                    <div className="border-b border-gray-200 pb-4">
-                        <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 tracking-tight">
-                            {user.data.nombre_completo}
-                        </h1>
-                        <p className="text-gray-500 text-lg mt-2">Perfil de Sistema</p>
+                <div className="flex flex-col md:flex-row gap-10 items-stretch">
+                    
+                    {/* AVATAR / STATUS CARD */}
+                    <div className="w-full md:w-1/3 bg-zinc-900/50 border border-zinc-800 rounded-[2.5rem] flex flex-col items-center justify-center p-10 backdrop-blur-sm relative overflow-hidden group">
+                        {/* Efecto de luz de fondo */}
+                        <div className="absolute -top-24 -right-24 w-48 h-48 bg-blue-600/10 rounded-full blur-[80px] group-hover:bg-blue-600/20 transition-all duration-700" />
+                        
+                        <div className="relative">
+                            <div className="absolute inset-0 bg-blue-500 blur-2xl opacity-20 group-hover:opacity-40 transition-opacity" />
+                            <UserCircle className="h-40 w-40 text-zinc-700 relative z-10 group-hover:text-blue-500 transition-colors duration-500" />
+                        </div>
+
+                        <div className="mt-8 text-center space-y-4">
+                            <span className={`inline-flex items-center gap-2 px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-widest border shadow-lg ${
+                                user.data.estado === 'Activo' 
+                                ? 'bg-green-500/10 text-green-500 border-green-500/30' 
+                                : 'bg-red-500/10 text-red-500 border-red-500/30'
+                            }`}>
+                                <span className={`h-2 w-2 rounded-full ${user.data.estado === 'Activo' ? 'bg-green-500 animate-pulse' : 'bg-red-500'}`} />
+                                {user.data.estado}
+                            </span>
+                            <p className="text-zinc-500 text-xs font-bold uppercase tracking-tighter italic">ID Usuario: #00{id}</p>
+                        </div>
                     </div>
 
-                    <div className="bg-white border border-gray-200 rounded-2xl p-8 shadow-sm">
-                        
-                        {/* Información General */}
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                            <div className="flex items-center gap-4">
-                                <div className="p-3 bg-blue-50 text-blue-600 rounded-lg"><Shield className="h-6 w-6" /></div>
-                                <div>
-                                    <p className="text-sm font-semibold text-gray-500">Rol del Usuario</p>
-                                    <p className="text-lg font-bold text-gray-800">{user.data.rol}</p>
-                                </div>
+                    {/* DETALLES DEL PERFIL */}
+                    <div className="flex-1 space-y-8">
+                        <div className="space-y-2">
+                            <div className="flex items-center gap-2 text-blue-500 font-black uppercase tracking-[0.3em] text-xs">
+                                <Award className="h-4 w-4" /> Perfil Verificado
                             </div>
-                            
-                            <div className="flex items-center gap-4">
-                                <div className="p-3 bg-blue-50 text-blue-600 rounded-lg"><Calendar className="h-6 w-6" /></div>
-                                <div>
-                                    <p className="text-sm font-semibold text-gray-500">Fecha de Registro</p>
-                                    <p className="text-lg font-bold text-gray-800">{user.data.fecha_registro}</p>
-                                </div>
-                            </div>
+                            <h1 className="text-5xl md:text-6xl font-black text-white tracking-tighter uppercase italic leading-none">
+                                {user.data.nombre_completo}
+                            </h1>
                         </div>
 
-                        {/* Actividad Calculada */}
-                        <div className="mt-10 pt-8 border-t border-gray-100">
-                            <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
-                                <TrendingUp className="h-5 w-5 text-blue-600" /> Resumen de Actividad
-                            </h3>
+                        <div className="bg-zinc-900/40 border border-zinc-800 rounded-[2.5rem] p-8 md:p-10 shadow-2xl backdrop-blur-xl">
                             
-                            <div className="bg-blue-50 border border-blue-100 rounded-xl p-8 flex flex-col items-center justify-center text-center">
-                                <span className="text-6xl font-black text-blue-700 mb-2">
-                                    {user.data.total_actividad}
-                                </span>
-                                <span className="text-sm font-bold text-blue-800 uppercase tracking-widest">
-                                    {user.data.tipo_actividad}
-                                </span>
+                            {/* Grid de Info Técnica */}
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-10">
+                                <div className="flex items-center gap-5 group">
+                                    <div className="p-4 bg-zinc-800 text-blue-500 rounded-2xl group-hover:bg-blue-600 group-hover:text-white transition-all duration-300">
+                                        <Shield className="h-7 w-7" />
+                                    </div>
+                                    <div>
+                                        <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-1">Rol en el Garaje</p>
+                                        <p className="text-xl font-bold text-zinc-100 italic">{user.data.rol}</p>
+                                    </div>
+                                </div>
+                                
+                                <div className="flex items-center gap-5 group">
+                                    <div className="p-4 bg-zinc-800 text-blue-500 rounded-2xl group-hover:bg-blue-600 group-hover:text-white transition-all duration-300">
+                                        <Calendar className="h-7 w-7" />
+                                    </div>
+                                    <div>
+                                        <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-1">Fecha de Ingreso</p>
+                                        <p className="text-xl font-bold text-zinc-100 italic">{user.data.fecha_registro}</p>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
 
+                            {/* Métrica de Actividad Estilo Pantalla de Coche */}
+                            <div className="mt-12 pt-10 border-t border-zinc-800">
+                                <h3 className="text-xs font-black text-zinc-400 mb-6 flex items-center gap-3 uppercase tracking-[0.2em]">
+                                    <TrendingUp className="h-4 w-4 text-blue-500" /> Rendimiento en Subastas
+                                </h3>
+                                
+                                <div className="relative group overflow-hidden bg-black/40 border border-zinc-800 rounded-3xl p-10 flex flex-col items-center justify-center transition-all duration-500 hover:border-blue-500/40">
+                                    <div className="absolute inset-0 bg-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                    
+                                    <span className="text-8xl font-black text-blue-500 tracking-tighter mb-2 group-hover:scale-110 transition-transform duration-500 drop-shadow-[0_0_20px_rgba(59,130,246,0.3)]">
+                                        {user.data.total_actividad}
+                                    </span>
+                                    <span className="text-sm font-black text-zinc-400 uppercase tracking-[0.4em] italic border-t border-zinc-800 pt-4 px-8">
+                                        {user.data.tipo_actividad}
+                                    </span>
+                                </div>
+                            </div>
+
+                        </div>
                     </div>
                 </div>
             </div>
-
-            {/* Botón de regreso nativo */}
-            <button 
-                onClick={() => navigate(-1)}
-                className="mt-10 flex items-center gap-2 px-5 py-2 border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 font-medium rounded-lg transition-colors"
-            >
-                <ArrowLeft className="w-4 h-4" /> Regresar al listado
-            </button>
         </div>
     );
 }

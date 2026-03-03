@@ -1,19 +1,24 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import AutoService from "../../services/AutoService";
-import { Car, User, Activity, ImageIcon, ChevronRight, Loader2, AlertCircle } from "lucide-react";
+import { Car, User, Activity, ImageIcon, ChevronRight, Loader2, AlertCircle, TrendingUp, Sparkles } from "lucide-react";
 
 export function ListAutos() {
     const [data, setData] = useState(null);
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(true);
 
-    const IMAGE_URL = import.meta.env.VITE_BASE_URL.replace('api/', 'uploads/');
+    // Configuración para la carpeta public/img
+    const IMAGE_URL = "/img/"; 
 
     useEffect(() => {
         const fetchData = async () => {
             try {
                 const response = await AutoService.getAutos();
+                
+                // ESTO ES PARA DEPURACIÓN: Abre la consola (F12) y revisa qué llega
+                console.log("Datos recibidos del API:", response.data.data);
+                
                 setData(response.data);
                 if (!response.data.success) setError(response.data.message);
             } catch (err) {
@@ -26,74 +31,112 @@ export function ListAutos() {
     }, []);
 
     if (loading) return (
-        <div className="flex flex-col items-center justify-center py-20 text-gray-500">
-            <Loader2 className="h-10 w-10 animate-spin mb-4" />
-            <p className="text-lg font-medium">Cargando catálogo de vehículos...</p>
+        <div className="flex flex-col items-center justify-center min-h-[60vh] text-zinc-400 bg-black">
+            <Loader2 className="h-12 w-12 animate-spin mb-4 text-red-600 shadow-[0_0_15px_rgba(220,38,38,0.5)]" />
+            <p className="text-xl font-black italic tracking-widest uppercase animate-pulse text-zinc-500">Calentando motores...</p>
         </div>
     );
     
     if (error) return (
-        <div className="mx-auto max-w-3xl mt-10 p-4 bg-red-50 border border-red-200 rounded-lg flex items-center gap-3 text-red-700">
-            <AlertCircle className="h-6 w-6" />
-            <p><strong>Error:</strong> {error}</p>
+        <div className="mx-auto max-w-3xl mt-20 p-8 bg-zinc-900/50 border border-red-900/30 rounded-[2rem] flex items-center gap-6 text-red-400 backdrop-blur-xl shadow-2xl">
+            <AlertCircle className="h-10 w-10 text-red-600 shrink-0" />
+            <div>
+                <h2 className="font-black uppercase italic tracking-tighter text-xl text-white">Fallo en el Radar</h2>
+                <p className="text-zinc-500 font-medium">{error}</p>
+            </div>
         </div>
     );
 
     return (
-        <div className="mx-auto max-w-7xl p-6">
-            <div className="mb-8 border-b border-gray-200 pb-4">
-                <h1 className="text-3xl font-extrabold tracking-tight flex items-center gap-3 text-gray-900">
-                    <Car className="h-8 w-8 text-red-600" />
-                    Catálogo de Vehículos
-                </h1>
-                <p className="text-gray-500 mt-2 text-lg">Explora los objetos disponibles para subasta.</p>
-            </div>
+        <div className="min-h-screen bg-black text-zinc-100 p-4 md:p-12">
+            <div className="mx-auto max-w-7xl">
+                
+                {/* Encabezado */}
+                <div className="mb-16 space-y-4 relative">
+                    <div className="absolute -left-10 top-0 w-24 h-24 bg-red-600/10 rounded-full blur-[60px] pointer-events-none" />
+                    
+                    <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-zinc-900 border border-zinc-800 text-red-500 text-[10px] font-black uppercase tracking-[0.2em] mb-4">
+                        <Sparkles className="h-3 w-3 animate-reverse-spin" /> Inventario Global v2.0
+                    </div>
+                    
+                    <h1 className="text-5xl md:text-7xl font-black tracking-tighter flex items-center gap-4 text-white uppercase italic leading-none">
+                        GARAJE <span className="text-red-600 drop-shadow-[0_0_15px_rgba(220,38,38,0.3)]">HOT WHEELS</span>
+                    </h1>
+                    <p className="text-zinc-500 text-lg max-w-2xl font-medium border-l-2 border-zinc-800 pl-6 py-2">
+                        Piezas de colección exclusivas. Encuentra el próximo tesoro para tu vitrina personal.
+                    </p>
+                </div>
 
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-                {data.data.map((auto) => (
-                    <div key={auto.id_auto} className="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow flex flex-col">
-                        
-                        {/* Imagen Principal */}
-                        <div className="aspect-4/3 w-full bg-gray-100 flex items-center justify-center overflow-hidden border-b border-gray-200">
-                            {auto.imagen_principal ? (
-                                <img 
-                                    src={`${IMAGE_URL}${auto.imagen_principal}`} 
-                                    alt={auto.nombre_modelo}
-                                    className="w-full h-full object-cover hover:scale-105 transition-transform"
-                                />
-                            ) : (
-                                <ImageIcon className="h-12 w-12 text-gray-300" />
-                            )}
-                        </div>
-
-                        <div className="p-5 flex-1 flex flex-col justify-between">
-                            <div className="space-y-3 mb-4">
-                                <h3 className="text-lg font-bold text-gray-800 line-clamp-1" title={auto.nombre_modelo}>
-                                    {auto.nombre_modelo}
-                                </h3>
-                                
-                                <div className="flex items-center gap-2 text-sm text-gray-600">
-                                    <User className="h-4 w-4 text-gray-400" />
-                                    <span className="truncate font-medium">{auto.propietario}</span>
-                                </div>
-                                
-                                <div className="flex items-center gap-2 text-sm">
-                                    <Activity className="h-4 w-4 text-gray-400" />
-                                    <span className="px-2 py-1 bg-gray-100 border border-gray-200 text-gray-700 rounded-md text-xs font-bold">
-                                        {auto.estado_actual}
-                                    </span>
+                {/* Grid de Autos */}
+                <div className="grid gap-10 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                    {data?.data?.map((auto) => (
+                        <div key={auto.id_auto} className="group relative bg-zinc-900/30 border border-zinc-800 rounded-[2.5rem] overflow-hidden transition-all duration-500 hover:border-red-600/40 hover:bg-zinc-900/60 hover:-translate-y-2 flex flex-col shadow-2xl">
+                            
+                            {/* Badge de Estado */}
+                            <div className="absolute top-5 right-5 z-20">
+                                <div className={`px-4 py-1 rounded-full text-[9px] font-black uppercase tracking-widest backdrop-blur-xl border ${
+                                    auto.estado_actual === 'EN_SUBASTA' || auto.estado_actual === 'DISPONIBLE'
+                                    ? 'bg-green-500/20 text-green-400 border-green-500/30 shadow-[0_0_10px_rgba(34,197,94,0.2)]' 
+                                    : 'bg-zinc-800/80 text-zinc-400 border-zinc-700'
+                                }`}>
+                                    {auto.estado_actual}
                                 </div>
                             </div>
+
+                                        {/* Imagen del Auto */}
+                        <div className="aspect-[4/3] w-full bg-zinc-800 flex items-center justify-center overflow-hidden relative">
+                            <div className="absolute inset-0 bg-gradient-to-t from-zinc-900 via-transparent to-transparent z-10 opacity-80" />
                             
-                            {/* Botón nativo */}
-                            <Link to={`/auto/detail/${auto.id_auto}`}>
-                                <button className="w-full flex items-center justify-center gap-2 py-2 px-4 bg-gray-50 hover:bg-gray-100 border border-gray-200 text-gray-800 font-medium rounded-lg transition-colors">
-                                    Ver Detalles <ChevronRight className="h-4 w-4" />
-                                </button>
-                            </Link>
+                            {/* Usamos 'imagen_principal' porque así lo envía tu JSON de Postman */}
+                            {auto.imagen_principal ? (
+                                <img 
+                                    src={`/img/${auto.imagen_principal}`} 
+                                    alt={auto.nombre_modelo}
+                                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
+                                    onError={(e) => {
+                                        console.error("No se encontró el archivo en public/img/ para:", auto.imagen_principal);
+                                        e.target.src = "https://via.placeholder.com/400x300/18181b/ef4444?text=ERROR+ARCHIVO";
+                                    }}
+                                />
+                            ) : (
+                                <div className="flex flex-col items-center gap-3 opacity-20">
+                                    <ImageIcon className="h-16 w-16 text-zinc-400" />
+                                    <span className="text-[10px] font-black uppercase italic">Sin Imagen</span>
+                                </div>
+                            )}
                         </div>
-                    </div>
-                ))}
+                            {/* Info del Auto */}
+                            <div className="p-8 flex-1 flex flex-col">
+                                <div className="mb-8">
+                                    <p className="text-[10px] text-red-500 font-black uppercase tracking-[0.2em] mb-1">{auto.rareza || 'Coleccionable'}</p>
+                                    <h3 className="text-2xl font-black text-white group-hover:text-red-500 transition-colors line-clamp-2 uppercase italic leading-tight tracking-tighter">
+                                        {auto.nombre_modelo}
+                                    </h3>
+                                </div>
+                                
+                                <div className="mt-auto space-y-6">
+                                    {/* Info Propietario */}
+                                    <div className="flex items-center gap-4 p-3 rounded-2xl bg-black/40 border border-zinc-800/50 group-hover:border-zinc-700 transition-colors">
+                                        <div className="h-10 w-10 rounded-xl bg-zinc-800 flex items-center justify-center border border-zinc-700 text-zinc-500 group-hover:text-white transition-colors">
+                                            <User className="h-5 w-5" />
+                                        </div>
+                                        <div className="flex flex-col">
+                                            <span className="text-[9px] text-zinc-500 uppercase font-black tracking-widest">Propietario</span>
+                                            <span className="text-sm text-zinc-200 font-bold italic truncate w-32">{auto.propietario || 'Vendedor Oficial'}</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <Link to={`/subasta/detail/${auto.id_auto}`} className="block">
+                                        <button className="w-full relative group/btn flex items-center justify-center gap-3 py-4 bg-white text-black hover:bg-red-600 hover:text-white font-black rounded-2xl transition-all duration-300 uppercase italic tracking-tighter text-sm shadow-xl">
+                                            <span>Entrar a Subasta</span>
+                                            <ChevronRight className="h-5 w-5 group-hover/btn:translate-x-2 transition-transform" />
+                                        </button>
+                                    </Link>
+                                </div>
+                            </div>
+                        </div>
+                    ))}
+                </div>
             </div>
         </div>
     );

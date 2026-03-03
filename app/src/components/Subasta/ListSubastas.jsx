@@ -1,19 +1,18 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import SubastaService from "../../services/SubastaService";
-import { Gavel, Clock, CheckCircle, ChevronRight, Loader2, AlertCircle } from "lucide-react";
+import { Gavel, Clock, CheckCircle, ChevronRight, Loader2, AlertCircle, TrendingUp, History } from "lucide-react";
 
 export function ListSubastas() {
     const [activas, setActivas] = useState([]);
     const [finalizadas, setFinalizadas] = useState([]);
-    const [vistaActual, setVistaActual] = useState('activas'); // 'activas' o 'finalizadas'
+    const [vistaActual, setVistaActual] = useState('activas'); 
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const fetchSubastas = async () => {
             try {
-                // Hacemos ambas peticiones en paralelo para optimizar el rendimiento
                 const [resActivas, resFinalizadas] = await Promise.all([
                     SubastaService.getActivas(),
                     SubastaService.getFinalizadas()
@@ -34,94 +33,122 @@ export function ListSubastas() {
     }, []);
 
     if (loading) return (
-        <div className="flex flex-col items-center justify-center py-20 text-gray-500">
-            <Loader2 className="h-10 w-10 animate-spin mb-4" />
-            <p className="text-lg font-medium">Cargando sala de subastas...</p>
+        <div className="flex flex-col items-center justify-center min-h-[60vh] text-zinc-500 bg-black">
+            <Loader2 className="h-12 w-12 animate-spin mb-4 text-red-600" />
+            <p className="text-xl font-black italic tracking-widest uppercase">Escaneando Subastas...</p>
         </div>
     );
     
     if (error) return (
-        <div className="mx-auto max-w-3xl mt-10 p-4 bg-red-50 border border-red-200 rounded-lg flex items-center gap-3 text-red-700">
-            <AlertCircle className="h-6 w-6" />
-            <p><strong>Error:</strong> {error}</p>
+        <div className="mx-auto max-w-3xl mt-10 p-6 bg-zinc-900 border border-red-900/50 rounded-2xl flex items-center gap-4 text-red-400 shadow-2xl">
+            <AlertCircle className="h-8 w-8 text-red-600" />
+            <p className="text-lg font-bold italic uppercase font-black tracking-tighter">Error de Radar: {error}</p>
         </div>
     );
 
     const subastasAMostrar = vistaActual === 'activas' ? activas : finalizadas;
 
     return (
-        <div className="mx-auto max-w-7xl p-6">
-            <div className="mb-6 border-b border-gray-200 pb-4">
-                <h1 className="text-3xl font-extrabold tracking-tight flex items-center gap-3 text-gray-900">
-                    <Gavel className="h-8 w-8 text-purple-600" />
-                    Sala de Subastas
-                </h1>
-                <p className="text-gray-500 mt-2 text-lg">Participa en tiempo real o revisa el historial.</p>
-            </div>
-
-            {/* Pestañas de Navegación Nativas */}
-            <div className="flex gap-4 mb-8">
-                <button 
-                    onClick={() => setVistaActual('activas')}
-                    className={`flex items-center gap-2 px-6 py-3 rounded-lg font-bold transition-all ${vistaActual === 'activas' ? 'bg-purple-600 text-white shadow-md' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
-                >
-                    <Clock className="h-5 w-5" /> Activas ({activas.length})
-                </button>
-                <button 
-                    onClick={() => setVistaActual('finalizadas')}
-                    className={`flex items-center gap-2 px-6 py-3 rounded-lg font-bold transition-all ${vistaActual === 'finalizadas' ? 'bg-gray-800 text-white shadow-md' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
-                >
-                    <CheckCircle className="h-5 w-5" /> Finalizadas ({finalizadas.length})
-                </button>
-            </div>
-
-            {/* Grid de Tarjetas */}
-            {subastasAMostrar.length === 0 ? (
-                <div className="text-center py-12 bg-gray-50 rounded-xl border border-dashed border-gray-300 text-gray-500">
-                    No hay subastas en esta categoría actualmente.
+        <div className="min-h-screen bg-black text-zinc-100 p-4 md:p-8">
+            <div className="mx-auto max-w-7xl">
+                
+                {/* Encabezado Principal */}
+                <div className="mb-10 space-y-2">
+                    <h1 className="text-4xl md:text-5xl font-black tracking-tighter flex items-center gap-4 text-white uppercase italic">
+                        <Gavel className="h-10 w-10 text-red-600" />
+                        SALA DE <span className="text-red-600">SUBASTAS</span>
+                    </h1>
+                    <p className="text-zinc-500 text-lg font-medium">Compite por las piezas más raras o revisa cierres históricos.</p>
                 </div>
-            ) : (
-                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                    {subastasAMostrar.map((subasta) => (
-                        <div key={subasta.id_subasta} className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow flex flex-col justify-between relative overflow-hidden">
-                            
-                            {/* Etiqueta de Estado Visual */}
-                            <div className={`absolute top-0 right-0 px-4 py-1 text-xs font-bold text-white ${subasta.estado === 'Activa' ? 'bg-green-500' : 'bg-gray-600'}`}>
-                                {subasta.estado}
-                            </div>
 
-                            <div className="mt-4 mb-6">
-                                <h3 className="text-xl font-bold text-gray-800 mb-2">
-                                    {subasta.nombre_auto || "Vehículo Desconocido"}
-                                </h3>
-                                <div className="space-y-2">
-                                    <p className="text-sm text-gray-600">
-                                        <span className="font-semibold">Cierra:</span> {subasta.fecha_fin}
-                                    </p>
-                                    <p className="text-sm text-gray-600 flex items-center gap-2">
-                                        <span className="font-semibold">Total Pujas:</span> 
-                                        <span className="bg-purple-100 text-purple-800 px-2 py-0.5 rounded-full font-bold">
-                                            {subasta.cantidad_pujas}
-                                        </span>
-                                    </p>
-                                    {/* Solo mostramos ganador si está finalizada */}
-                                    {vistaActual === 'finalizadas' && (
-                                        <p className="text-sm text-gray-600 border-t pt-2 mt-2">
-                                            <span className="font-semibold text-gray-800">Ganador:</span> {subasta.ganador}
-                                        </p>
-                                    )}
+                {/* Selector de Vista Estilo Dashboard */}
+                <div className="flex p-1.5 bg-zinc-900/50 border border-zinc-800 rounded-2xl w-fit mb-12 backdrop-blur-sm">
+                    <button 
+                        onClick={() => setVistaActual('activas')}
+                        className={`flex items-center gap-3 px-8 py-3 rounded-xl font-black uppercase italic tracking-widest text-xs transition-all duration-300 ${
+                            vistaActual === 'activas' 
+                            ? 'bg-red-600 text-white shadow-[0_0_20px_rgba(220,38,38,0.4)]' 
+                            : 'text-zinc-500 hover:text-zinc-200 hover:bg-zinc-800'
+                        }`}
+                    >
+                        <TrendingUp className="h-4 w-4" /> EN VIVO ({activas.length})
+                    </button>
+                    <button 
+                        onClick={() => setVistaActual('finalizadas')}
+                        className={`flex items-center gap-3 px-8 py-3 rounded-xl font-black uppercase italic tracking-widest text-xs transition-all duration-300 ${
+                            vistaActual === 'finalizadas' 
+                            ? 'bg-zinc-700 text-white shadow-lg' 
+                            : 'text-zinc-500 hover:text-zinc-200 hover:bg-zinc-800'
+                        }`}
+                    >
+                        <History className="h-4 w-4" /> HISTORIAL ({finalizadas.length})
+                    </button>
+                </div>
+
+                {/* Grid de Subastas */}
+                {subastasAMostrar.length === 0 ? (
+                    <div className="text-center py-20 bg-zinc-900/20 rounded-[2rem] border-2 border-dashed border-zinc-800 text-zinc-600">
+                        <Gavel className="h-16 w-16 mx-auto mb-4 opacity-20" />
+                        <p className="text-xl font-black uppercase italic tracking-tighter">No hay subastas disponibles</p>
+                        <p className="text-sm mt-2">Vuelve pronto para ver nuevas piezas.</p>
+                    </div>
+                ) : (
+                    <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+                        {subastasAMostrar.map((subasta) => (
+                            <div key={subasta.id_subasta} className="group relative bg-zinc-900/40 border border-zinc-800 rounded-[2rem] p-8 shadow-2xl hover:border-red-600/50 transition-all duration-500 flex flex-col justify-between overflow-hidden">
+                                
+                                {/* Decoración de fondo */}
+                                <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-30 transition-opacity">
+                                    <Gavel className="h-24 w-24 -rotate-12 text-white" />
                                 </div>
-                            </div>
 
-                            <Link to={`/subasta/detail/${subasta.id_subasta}`}>
-                                <button className="w-full flex items-center justify-center gap-2 py-2 px-4 bg-purple-50 hover:bg-purple-100 border border-purple-200 text-purple-700 font-bold rounded-lg transition-colors">
-                                    Ingresar a la sala <ChevronRight className="h-4 w-4" />
-                                </button>
-                            </Link>
-                        </div>
-                    ))}
-                </div>
-            )}
+                                {/* Etiqueta de Estado */}
+                                <div className={`inline-flex items-center gap-2 mb-6 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border self-start ${
+                                    subasta.estado === 'Activa' 
+                                    ? 'bg-green-500/10 text-green-500 border-green-500/20' 
+                                    : 'bg-zinc-800 text-zinc-500 border-zinc-700'
+                                }`}>
+                                    <span className={`h-1.5 w-1.5 rounded-full ${subasta.estado === 'Activa' ? 'bg-green-500 animate-pulse' : 'bg-zinc-500'}`} />
+                                    {subasta.estado}
+                                </div>
+
+                                <div className="relative z-10">
+                                    <h3 className="text-2xl font-black text-white mb-4 uppercase italic tracking-tighter group-hover:text-red-500 transition-colors">
+                                        {subasta.nombre_auto || "Vehículo Desconocido"}
+                                    </h3>
+                                    
+                                    <div className="space-y-4 mb-8">
+                                        <div className="flex items-center justify-between text-xs">
+                                            <span className="text-zinc-500 font-bold uppercase tracking-widest">Cierre de Puja</span>
+                                            <span className="text-zinc-300 font-mono bg-zinc-800/50 px-2 py-1 rounded">{subasta.fecha_fin}</span>
+                                        </div>
+                                        
+                                        <div className="flex items-center justify-between border-t border-zinc-800 pt-4">
+                                            <span className="text-zinc-500 text-xs font-bold uppercase tracking-widest">Ofertas Realizadas</span>
+                                            <span className="bg-red-600/10 text-red-500 px-3 py-1 rounded-lg text-sm font-black border border-red-600/20">
+                                                {subasta.cantidad_pujas} PUJAS
+                                            </span>
+                                        </div>
+
+                                        {vistaActual === 'finalizadas' && (
+                                            <div className="bg-yellow-500/10 border border-yellow-500/20 p-4 rounded-2xl mt-4">
+                                                <p className="text-[10px] text-yellow-500 font-black uppercase tracking-tighter mb-1">Ganador Final</p>
+                                                <p className="text-sm font-bold text-yellow-500 truncate italic">🏆 {subasta.ganador}</p>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+
+                                <Link to={`/subasta/detail/${subasta.id_subasta}`} className="relative z-10">
+                                    <button className="w-full group/btn flex items-center justify-center gap-3 py-4 px-6 bg-white text-black hover:bg-red-600 hover:text-white font-black rounded-2xl transition-all duration-300 uppercase italic tracking-tighter shadow-lg">
+                                        Entrar a la Sala <ChevronRight className="h-5 w-5 group-hover/btn:translate-x-1 transition-transform" />
+                                    </button>
+                                </Link>
+                            </div>
+                        ))}
+                    </div>
+                )}
+            </div>
         </div>
     );
 }
