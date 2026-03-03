@@ -1,0 +1,202 @@
+{
+  "info": {
+    "_postman_id": "631b31a4-cdeb-42f1-9fde-cad3ea2c0a24",
+    "name": "API Subasta",
+    "description": "### Welcome to Postman! This is your first collection. \n\nCollections are your starting point for building and testing APIs. You can use this one to:\n\n• Group related requests\n• Test your API in real-world scenarios\n• Document and share your requests\n\nUpdate the name and overview whenever you’re ready to make it yours.\n\n[Learn more about Postman Collections.](https://learning.postman.com/docs/collections/collections-overview/)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "52105086",
+    "_collection_link": "https://go.postman.co/collection/52105086-631b31a4-cdeb-42f1-9fde-cad3ea2c0a24?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "User",
+      "item": [
+        {
+          "name": "Lista Usuarios",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:81/appSubastaHotWheels/api/user",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "81",
+              "path": [
+                "appSubastaHotWheels",
+                "api",
+                "user"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "lista Usario Detalle",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:81/appSubastaHotWheels/api/user/2",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "81",
+              "path": [
+                "appSubastaHotWheels",
+                "api",
+                "user",
+                "2"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Autos",
+      "item": [
+        {
+          "name": "Listado de Autos",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:81/appSubastaHotWheels/api/auto",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "81",
+              "path": [
+                "appSubastaHotWheels",
+                "api",
+                "auto"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Detalle de Auto",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:81/appSubastaHotWheels/api/auto/1",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "81",
+              "path": [
+                "appSubastaHotWheels",
+                "api",
+                "auto",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Subastas",
+      "item": [
+        {
+          "name": "Subastas Activas",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:81/appSubastaHotWheels/api/subasta",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "81",
+              "path": [
+                "appSubastaHotWheels",
+                "api",
+                "subasta"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Subastas Finalizadas",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:81/appSubastaHotWheels/api/subasta/finalizadas",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "81",
+              "path": [
+                "appSubastaHotWheels",
+                "api",
+                "subasta",
+                "finalizadas"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Detalle de Subasta",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:81/appSubastaHotWheels/api/subasta/get/2",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "81",
+              "path": [
+                "appSubastaHotWheels",
+                "api",
+                "subasta",
+                "get",
+                "2"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Pujas Por Subasta",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:81/appSubastaHotWheels/api/subasta/pujas/2",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "81",
+              "path": [
+                "appSubastaHotWheels",
+                "api",
+                "subasta",
+                "pujas",
+                "2"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
