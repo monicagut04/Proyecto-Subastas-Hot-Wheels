@@ -26,9 +26,9 @@ export function Home() {
             {/* Título con Gradiente Agresivo */}
             <div className="text-center mb-12">
                 <h1 className="text-7xl md:text-9xl font-[1000] italic uppercase tracking-tighter leading-[0.85] mb-4">
-                    SPEED <br />
+                    SISTEMAS DE <br />
                     <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-600 via-orange-500 to-yellow-500 drop-shadow-[0_10px_30px_rgba(220,38,38,0.3)]">
-                        AUCTION
+                        SUBASTAS
                     </span>
                 </h1>
                 <p className="text-zinc-500 text-lg md:text-xl max-w-2xl mx-auto font-medium tracking-tight">
@@ -55,7 +55,7 @@ export function Home() {
                     </div>
                     <ArrowRight className="h-5 w-5 text-zinc-700 group-hover:text-white group-hover:translate-x-1 transition-all" />
                 </div>
-                <h3 className="text-2xl font-black uppercase italic tracking-tighter text-white mb-2">Comunidad</h3>
+                <h3 className="text-2xl font-black uppercase italic tracking-tighter text-white mb-2">USUARIOS</h3>
                 <p className="text-sm text-zinc-500 font-medium">Gestiona pilotos y sus estadísticas.</p>
             </Link>
             
@@ -67,7 +67,7 @@ export function Home() {
                     </div>
                     <ArrowRight className="h-5 w-5 text-zinc-700 group-hover:text-white group-hover:translate-x-1 transition-all" />
                 </div>
-                <h3 className="text-2xl font-black uppercase italic tracking-tighter text-white mb-2">Garaje</h3>
+                <h3 className="text-2xl font-black uppercase italic tracking-tighter text-white mb-2">AUTOS</h3>
                 <p className="text-sm text-zinc-500 font-medium">Explora las piezas de metal disponibles.</p>
             </Link>
             
@@ -79,7 +79,7 @@ export function Home() {
                     </div>
                     <ArrowRight className="h-5 w-5 text-zinc-700 group-hover:text-white group-hover:translate-x-1 transition-all" />
                 </div>
-                <h3 className="text-2xl font-black uppercase italic tracking-tighter text-white mb-2">Martillo</h3>
+                <h3 className="text-2xl font-black uppercase italic tracking-tighter text-white mb-2">Subastas</h3>
                 <p className="text-sm text-zinc-500 font-medium">Control total de las subastas activas.</p>
             </Link>
 
