@@ -75,11 +75,6 @@ export default function Header() {
             <Gavel className="h-4 w-4" /> Subastas
           </Link>
           
-          {/* Status Live para Móvil dentro del menú */}
-          <div className="mt-4 flex items-center justify-center gap-3 p-4 border border-zinc-800 rounded-xl">
-            <span className="h-2 w-2 rounded-full bg-red-600 animate-pulse"></span>
-            <span className="text-[10px] font-black text-white uppercase tracking-[0.3em]">Live Stats</span>
-          </div>
         </nav>
       </div>
     </header>
