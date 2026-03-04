@@ -6,7 +6,7 @@ export function Footer() {
         <div className="w-12 h-1 bg-gradient-to-r from-red-600 to-yellow-500 rounded-full mb-2" />
         
         <p className="text-sm font-black uppercase tracking-[0.3em] text-zinc-100">
-            Proyecto<span className="text-red-600 italic">Sistema Subastas</span>
+            Proyecto<span className="text-red-600 italic">Subastas</span>
         </p>
         
         <div className="flex items-center gap-2">

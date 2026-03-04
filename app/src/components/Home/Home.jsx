@@ -14,14 +14,6 @@ export function Home() {
         {/* --- CONTENIDO PRINCIPAL --- */}
         <div className="relative z-10 flex flex-col items-center">
             
-            {/* Badge superior con pulso */}
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-zinc-900/50 border border-white/10 text-zinc-400 text-[10px] font-black uppercase tracking-[0.3em] mb-10 backdrop-blur-md animate-fade-in">
-                <span className="relative flex h-2 w-2">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-yellow-400 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-yellow-500"></span>
-                </span>
-                Sistema de Subastas Oficial v2.0
-            </div>
 
             {/* Título con Gradiente Agresivo */}
             <div className="text-center mb-12">

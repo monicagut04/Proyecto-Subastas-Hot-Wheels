@@ -104,7 +104,7 @@ export function DetailSubasta() {
                                         <p className="text-3xl font-black text-white">${subasta.precio_base}</p>
                                     </div>
                                     <div className="space-y-1 border-l border-zinc-800 pl-6">
-                                        <p className="text-[10px] text-zinc-500 font-black uppercase tracking-widest">Paso Mínimo</p>
+                                        <p className="text-[10px] text-zinc-500 font-black uppercase tracking-widest">Incremento Mínimo</p>
                                         <p className="text-3xl font-black text-yellow-500">${subasta.incremento_minimo}</p>
                                     </div>
                                 </div>
