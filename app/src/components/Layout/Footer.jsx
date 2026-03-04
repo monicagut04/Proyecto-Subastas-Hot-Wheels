@@ -6,13 +6,13 @@ export function Footer() {
         <div className="w-12 h-1 bg-gradient-to-r from-red-600 to-yellow-500 rounded-full mb-2" />
         
         <p className="text-sm font-black uppercase tracking-[0.3em] text-zinc-100">
-            SUBASTAS <span className="text-red-600 italic">Project</span>
+            Proyecto<span className="text-red-600 italic">Sistema Subastas</span>
         </p>
         
         <div className="flex items-center gap-2">
             <div className="h-px w-8 bg-zinc-800" />
             <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">
-                © {new Date().getFullYear()} Elite Auction Engine
+                © {new Date().getFullYear()} 
             </p>
             <div className="h-px w-8 bg-zinc-800" />
         </div>

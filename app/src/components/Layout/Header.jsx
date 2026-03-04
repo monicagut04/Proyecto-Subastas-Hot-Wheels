@@ -46,17 +46,6 @@ export default function Header() {
           </Link>
         </nav>
 
-        {/* Lado Derecho: Status (Oculto en móvil) */}
-        <div className="hidden lg:flex items-center gap-3 px-5 py-2.5 bg-zinc-900/50 border border-zinc-800 rounded-2xl">
-            <div className="relative flex h-2.5 w-2.5">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-600"></span>
-            </div>
-            <span className="text-[10px] font-black text-white uppercase tracking-[0.3em]">
-                Live <span className="text-red-600">Stats</span>
-            </span>
-        </div>
-
         {/* BOTÓN HAMBURGUESA - MÓVIL (Visible solo en md:hidden) */}
         <button 
           className="md:hidden text-white p-2"

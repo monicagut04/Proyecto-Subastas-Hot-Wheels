@@ -26,7 +26,7 @@ export function Home() {
             {/* Título con Gradiente Agresivo */}
             <div className="text-center mb-12">
                 <h1 className="text-7xl md:text-9xl font-[1000] italic uppercase tracking-tighter leading-[0.85] mb-4">
-                    SISTEMAS DE <br />
+                    SISTEMA DE <br />
                     <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-600 via-orange-500 to-yellow-500 drop-shadow-[0_10px_30px_rgba(220,38,38,0.3)]">
                         SUBASTAS
                     </span>
