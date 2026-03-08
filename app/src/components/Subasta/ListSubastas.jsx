@@ -56,9 +56,8 @@ export function ListSubastas() {
                 <div className="mb-10 space-y-2">
                     <h1 className="text-4xl md:text-5xl font-black tracking-tighter flex items-center gap-4 text-white uppercase italic">
                         <Gavel className="h-10 w-10 text-red-600" />
-                        SALA DE <span className="text-red-600">SUBASTAS</span>
+                        HISTORIAL DE <span className="text-red-600">SUBASTAS</span>
                     </h1>
-                    <p className="text-zinc-500 text-lg font-medium">Compite por las piezas más raras o revisa cierres históricos.</p>
                 </div>
 
                 {/* Selector de Vista Estilo Dashboard */}
@@ -71,7 +70,7 @@ export function ListSubastas() {
                             : 'text-zinc-500 hover:text-zinc-200 hover:bg-zinc-800'
                         }`}
                     >
-                        <TrendingUp className="h-4 w-4" /> EN VIVO ({activas.length})
+                        <TrendingUp className="h-4 w-4" /> ACTIVAS ({activas.length})
                     </button>
                     <button 
                         onClick={() => setVistaActual('finalizadas')}
@@ -81,7 +80,7 @@ export function ListSubastas() {
                             : 'text-zinc-500 hover:text-zinc-200 hover:bg-zinc-800'
                         }`}
                     >
-                        <History className="h-4 w-4" /> HISTORIAL ({finalizadas.length})
+                        <History className="h-4 w-4" /> FINALIZADAS ({finalizadas.length})
                     </button>
                 </div>
 
@@ -119,23 +118,27 @@ export function ListSubastas() {
                                     
                                     <div className="space-y-4 mb-8">
                                         <div className="flex items-center justify-between text-xs">
+                                            <span className="text-zinc-500 font-bold uppercase tracking-widest">Inicio de Puja</span>
+                                            <span className="text-zinc-300 font-mono bg-zinc-800/50 px-2 py-1 rounded">{subasta.fecha_inicio}</span>
+                                        </div>
+                                        <div className="flex items-center justify-between text-xs">
                                             <span className="text-zinc-500 font-bold uppercase tracking-widest">Cierre de Puja</span>
                                             <span className="text-zinc-300 font-mono bg-zinc-800/50 px-2 py-1 rounded">{subasta.fecha_fin}</span>
                                         </div>
                                         
                                         <div className="flex items-center justify-between border-t border-zinc-800 pt-4">
-                                            <span className="text-zinc-500 text-xs font-bold uppercase tracking-widest">Ofertas Realizadas</span>
+                                            <span className="text-zinc-500 text-xs font-bold uppercase tracking-widest">Precio Base</span>
+                                            <span className="rounded-lg text-sm font-black">
+                                            {subasta.precio_base}
+                                            </span>
+                                        </div>
+                                        
+                                        <div className="flex items-center justify-between -800 pt-4">
+                                            <span className="text-zinc-500 text-xs font-bold uppercase tracking-widest">Pujas Realizadas</span>
                                             <span className="bg-red-600/10 text-red-500 px-3 py-1 rounded-lg text-sm font-black border border-red-600/20">
                                                 {subasta.cantidad_pujas} PUJAS
                                             </span>
                                         </div>
-
-                                        {vistaActual === 'finalizadas' && (
-                                            <div className="bg-yellow-500/10 border border-yellow-500/20 p-4 rounded-2xl mt-4">
-                                                <p className="text-[10px] text-yellow-500 font-black uppercase tracking-tighter mb-1">Ganador Final</p>
-                                                <p className="text-sm font-bold text-yellow-500 truncate italic">🏆 {subasta.ganador}</p>
-                                            </div>
-                                        )}
                                     </div>
                                 </div>
 

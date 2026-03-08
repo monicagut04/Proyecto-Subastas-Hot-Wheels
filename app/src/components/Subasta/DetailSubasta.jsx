@@ -95,6 +95,13 @@ export function DetailSubasta() {
                                     <span className="px-4 py-1.5 bg-blue-500/10 text-blue-400 border border-blue-500/20 rounded-full text-[10px] font-black uppercase tracking-widest">
                                         {subasta.condicion_objeto}
                                     </span>
+                                <div className="flex gap-2 mt-4">
+                                {subasta.categorias_objeto?.map((cat, idx) => (
+                                    <span key={idx} className="px-4 py-1 bg-zinc-800 text-red-500 border border-red-900/20 rounded-full text-[10px] font-black uppercase tracking-widest">
+                                        {cat.nombre_serie}
+                                    </span>
+                                ))}
+                                </div>
                                 </div>
 
                                 {/* Precios con Estilo Neón */}
@@ -141,7 +148,7 @@ export function DetailSubasta() {
                                     <p className="text-zinc-500 text-sm font-medium">Sigue el rastro de la victoria en tiempo real.</p>
                                 </div>
                                 <div className="bg-zinc-800 px-4 py-2 rounded-2xl border border-zinc-700">
-                                    <span className="text-[10px] block text-zinc-500 font-black uppercase tracking-tighter text-center">Movimientos</span>
+                                    <span className="text-[10px] block text-zinc-500 font-black uppercase tracking-tighter text-center">Pujas</span>
                                     <span className="text-xl font-black text-white block leading-none">{subasta.cantidad_total_pujas}</span>
                                 </div>
                             </div>
@@ -177,13 +184,13 @@ export function DetailSubasta() {
                                                     <p className={`font-black uppercase italic tracking-tighter ${idx === 0 ? 'text-white text-lg' : 'text-zinc-300'}`}>
                                                         {puja.postor}
                                                     </p>
-                                                    <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest">{puja.fecha_puja}</p>
+                                                    <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest">{puja.fecha_hora}</p>
                                                 </div>
                                             </div>
 
                                             <div className="text-right">
                                                 <div className={`text-3xl font-black tracking-tighter ${idx === 0 ? 'text-yellow-500' : 'text-zinc-100'}`}>
-                                                    ${puja.monto}
+                                                    ${puja.monto_ofertado}
                                                 </div>
                                                 {idx === 0 && (
                                                     <span className="text-[9px] font-black bg-yellow-500 text-black px-2 py-0.5 rounded uppercase italic">Oferta Líder</span>

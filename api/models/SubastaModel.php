@@ -89,7 +89,7 @@ class SubastaModel
             $id_auto = $subasta->id_auto;
 
             // 2. INFORMACIÓN DEL OBJETO: Nombre y Condición
-            $sqlAuto = "SELECT nombre_modelo, estado_actual as condicion FROM autos WHERE id_auto = $id_auto";
+            $sqlAuto = "SELECT nombre_modelo, estado_empaque as condicion FROM autos WHERE id_auto = $id_auto";
             $auto = $this->enlace->ExecuteSQL($sqlAuto);
             $subasta->nombre_objeto = !empty($auto) ? $auto[0]->nombre_modelo : "Desconocido";
             $subasta->condicion_objeto = !empty($auto) ? $auto[0]->condicion : "Desconocida";
