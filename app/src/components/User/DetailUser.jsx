@@ -74,7 +74,6 @@ export function DetailUser() {
                                 <span className={`h-2 w-2 rounded-full ${user.data.estado === 'Activo' ? 'bg-green-500 animate-pulse' : 'bg-red-500'}`} />
                                 {user.data.estado}
                             </span>
-                            <p className="text-zinc-500 text-xs font-bold uppercase tracking-tighter italic">ID Usuario: #00{id}</p>
                         </div>
                     </div>
 
@@ -82,7 +81,7 @@ export function DetailUser() {
                     <div className="flex-1 space-y-8">
                         <div className="space-y-2">
                             <div className="flex items-center gap-2 text-blue-500 font-black uppercase tracking-[0.3em] text-xs">
-                                <Award className="h-4 w-4" /> Perfil Verificado
+                                <Award className="h-4 w-4" /> Perfil
                             </div>
                             <h1 className="text-5xl md:text-6xl font-black text-white tracking-tighter uppercase italic leading-none">
                                 {user.data.nombre_completo}
@@ -98,7 +97,7 @@ export function DetailUser() {
                                         <Shield className="h-7 w-7" />
                                     </div>
                                     <div>
-                                        <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-1">Rol en el Garaje</p>
+                                        <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-1">Rol</p>
                                         <p className="text-xl font-bold text-zinc-100 italic">{user.data.rol}</p>
                                     </div>
                                 </div>
@@ -117,7 +116,7 @@ export function DetailUser() {
                             {/* Métrica de Actividad Estilo Pantalla de Coche */}
                             <div className="mt-12 pt-10 border-t border-zinc-800">
                                 <h3 className="text-xs font-black text-zinc-400 mb-6 flex items-center gap-3 uppercase tracking-[0.2em]">
-                                    <TrendingUp className="h-4 w-4 text-blue-500" /> Rendimiento en Subastas
+                                    <TrendingUp className="h-4 w-4 text-blue-500" />Pujas en Subastas
                                 </h3>
                                 
                                 <div className="relative group overflow-hidden bg-black/40 border border-zinc-800 rounded-3xl p-10 flex flex-col items-center justify-center transition-all duration-500 hover:border-blue-500/40">

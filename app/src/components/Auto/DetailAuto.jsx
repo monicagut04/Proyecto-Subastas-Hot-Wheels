@@ -24,7 +24,7 @@ export function DetailAuto() {
                 } else {
                     setError(response.data?.message || "No se encontró el auto");
                 }
-            } catch (err) {
+            } catch {
                 setError("Error de conexión con el servidor");
             } finally {
                 setLoading(false);
@@ -85,7 +85,7 @@ export function DetailAuto() {
                                 <span className="text-white font-mono">{auto.numero_serie}</span>
                             </div>
                             <div className="flex justify-between">
-                                <span className="text-zinc-500 text-[10px] font-black uppercase tracking-widest">Empaque</span>
+                                <span className="text-zinc-500 text-[10px] font-black uppercase tracking-widest">Estado Empaque</span>
                                 <span className="text-yellow-500 font-bold">{auto.estado_empaque?.replace('_', ' ')}</span>
                             </div>
                         </div>
@@ -124,6 +124,10 @@ export function DetailAuto() {
                                 <p className="text-[9px] font-black text-zinc-500 uppercase mb-1">Estado</p>
                                 <p className="text-xl font-bold text-green-500 uppercase italic">{auto.estado_actual?.replace('_', ' ')}</p>
                             </div>
+                            <div className="p-6 bg-zinc-900/50 rounded-[2rem] border border-zinc-800 text-right">
+                                <p className="text-[9px] font-black text-zinc-500 uppercase mb-1">Fecha de Registro</p>
+                                <p className="text-xl font-bold text-white uppercase italic">{auto.fecha_registro?.replace('_', ' ')}</p>
+                            </div>
                         </div>
 
                         {/* SUBSTAS */}
@@ -135,6 +139,7 @@ export function DetailAuto() {
                                 <div key={idx} className="p-5 bg-zinc-800/30 border border-zinc-700/50 rounded-2xl flex justify-between items-center">
                                     <div>
                                         <p className="font-bold text-white uppercase tracking-tighter">Subasta #{sub.id_subasta}</p>
+                                        <p className="text-[10px] text-zinc-500 font-bold">INICIO: {sub.fecha_inicio}</p>
                                         <p className="text-[10px] text-zinc-500 font-bold">CIERRE: {sub.fecha_fin}</p>
                                     </div>
                                     <span className="px-3 py-1 bg-green-500/10 text-green-500 border border-green-500/20 rounded text-[10px] font-black uppercase">

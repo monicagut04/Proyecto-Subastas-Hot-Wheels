@@ -23,9 +23,6 @@ export function Home() {
                         SUBASTAS
                     </span>
                 </h1>
-                <p className="text-zinc-500 text-lg md:text-xl max-w-2xl mx-auto font-medium tracking-tight">
-                    Donde los coleccionistas de verdad compiten por el <span className="text-white italic">Tesoro Escondido</span>.
-                </p>
             </div>
 
             {/* Botón de Acción Principal (CTA) */}
@@ -48,7 +45,7 @@ export function Home() {
                     <ArrowRight className="h-5 w-5 text-zinc-700 group-hover:text-white group-hover:translate-x-1 transition-all" />
                 </div>
                 <h3 className="text-2xl font-black uppercase italic tracking-tighter text-white mb-2">USUARIOS</h3>
-                <p className="text-sm text-zinc-500 font-medium">Gestiona pilotos y sus estadísticas.</p>
+                <p className="text-sm text-zinc-500 font-medium">Gestiona los Usarios.</p>
             </Link>
             
             {/* Tarjeta Catálogo */}
@@ -60,7 +57,7 @@ export function Home() {
                     <ArrowRight className="h-5 w-5 text-zinc-700 group-hover:text-white group-hover:translate-x-1 transition-all" />
                 </div>
                 <h3 className="text-2xl font-black uppercase italic tracking-tighter text-white mb-2">AUTOS</h3>
-                <p className="text-sm text-zinc-500 font-medium">Explora las piezas de metal disponibles.</p>
+                <p className="text-sm text-zinc-500 font-medium">Explora los autos disponibles.</p>
             </Link>
             
             {/* Tarjeta Subastas */}
@@ -75,11 +72,6 @@ export function Home() {
                 <p className="text-sm text-zinc-500 font-medium">Control total de las subastas activas.</p>
             </Link>
 
-        </div>
-
-        {/* --- FOOTER DECORATIVO --- */}
-        <div className="mt-20 text-[10px] text-zinc-700 font-black uppercase tracking-[0.5em] z-10">
-            Push the limits of your collection
         </div>
     </div>
     )

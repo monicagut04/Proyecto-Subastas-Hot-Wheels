@@ -77,8 +77,8 @@ export function ListAutos() {
                             </div>
 
                             {/* Imagen del Auto */}
-                            <div className="aspect-[4/3] w-full bg-zinc-800 flex items-center justify-center overflow-hidden relative">
-                                <div className="absolute inset-0 bg-gradient-to-t from-zinc-900 via-transparent to-transparent z-10 opacity-80" />
+                            <div className="aspect-4/3 w-full bg-zinc-800 flex items-center justify-center overflow-hidden relative">
+                                <div className="absolute inset-0 bg-linear-to-t from-zinc-900 via-transparent to-transparent z-10 opacity-80" />
                                 {auto.imagenes?.[0]?.nombre_imagen || auto.imagen_principal ? (
                                     <img 
                                         src={`${IMAGE_URL}${auto.imagenes?.[0]?.nombre_imagen || auto.imagen_principal}`} 
@@ -92,7 +92,7 @@ export function ListAutos() {
                                     </div>
                                 )}
                             </div>
-
+                            
                             {/* Info del Auto */}
                             <div className="p-8 flex-1 flex flex-col">
                                 <div className="mb-4">
@@ -120,7 +120,7 @@ export function ListAutos() {
                                     
                                     <Link to={`/auto/detail/${auto.id_auto}`} className="block">
                                         <button className="w-full group/btn flex items-center justify-center gap-3 py-4 bg-white text-black hover:bg-red-600 hover:text-white font-black rounded-2xl transition-all duration-300 uppercase italic tracking-tighter text-sm">
-                                            <span>Ver Ficha Completa</span>
+                                            <span>Ver Detalle Completo</span>
                                             <ChevronRight className="h-5 w-5 group-hover/btn:translate-x-2 transition-transform" />
                                         </button>
                                     </Link>

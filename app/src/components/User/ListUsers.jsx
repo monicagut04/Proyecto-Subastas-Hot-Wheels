@@ -51,7 +51,7 @@ export function ListUsers() {
                         DIRECTORIO DE <span className="text-blue-500">USUARIOS</span>
                     </h1>
                     <p className="text-zinc-500 text-lg font-medium max-w-2xl">
-                        Panel de control para la gestión de pilotos, coleccionistas y administradores del sistema.
+                        Panel de control para la gestión de Compradores, Vendedores y administradores del sistema.
                     </p>
                 </div>
 
@@ -92,21 +92,13 @@ export function ListUsers() {
                                             {user.rol}
                                         </span>
                                     </div>
-                                    
-                                    {/* Info adicional sutil */}
-                                    <div className="flex items-center gap-2 px-3">
-                                        <Activity className="h-3 w-3 text-zinc-700" />
-                                        <span className="text-[9px] text-zinc-600 font-bold uppercase tracking-widest leading-none pt-0.5">
-                                            ID de Registro: #USR-0{user.id_usuario}
-                                        </span>
-                                    </div>
                                 </div>
                             </div>
 
                             {/* Botón Estilo "Acceso Concedido" */}
                             <Link to={`/user/detail/${user.id_usuario}`} className="relative z-10">
                                 <button className="w-full flex items-center justify-center gap-3 py-4 px-6 bg-zinc-800 text-zinc-300 hover:bg-blue-600 hover:text-white font-black rounded-2xl transition-all duration-300 uppercase italic tracking-tighter text-sm border border-zinc-700 hover:border-blue-400 shadow-lg group/btn">
-                                    Ver Expediente <ChevronRight className="h-4 w-4 group-hover/btn:translate-x-2 transition-transform" />
+                                    Ver Detalle Usuario <ChevronRight className="h-4 w-4 group-hover/btn:translate-x-2 transition-transform" />
                                 </button>
                             </Link>
                         </div>
