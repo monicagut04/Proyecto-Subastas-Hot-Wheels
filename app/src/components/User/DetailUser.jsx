@@ -116,7 +116,7 @@ export function DetailUser() {
                             {/* Métrica de Actividad Estilo Pantalla de Coche */}
                             <div className="mt-12 pt-10 border-t border-zinc-800">
                                 <h3 className="text-xs font-black text-zinc-400 mb-6 flex items-center gap-3 uppercase tracking-[0.2em]">
-                                    <TrendingUp className="h-4 w-4 text-blue-500" />Pujas en Subastas
+                                    <TrendingUp className="h-4 w-4 text-blue-500" />{user.data.tipo_actividad}
                                 </h3>
                                 
                                 <div className="relative group overflow-hidden bg-black/40 border border-zinc-800 rounded-3xl p-10 flex flex-col items-center justify-center transition-all duration-500 hover:border-blue-500/40">
