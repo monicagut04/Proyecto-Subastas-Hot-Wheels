@@ -223,7 +223,7 @@ const [currentImageIndex, setCurrentImageIndex] = useState(0);
                         {/* SUBSTAS */}
                         <div className="pt-8 border-t border-zinc-800">
                             <h3 className="text-xl font-black text-white mb-6 flex items-center gap-3 italic">
-                                <Gavel className="h-6 w-6 text-red-600" /> HISTORIAL DE EVENTOS
+                                <Gavel className="h-6 w-6 text-red-600" /> HISTORIAL DE SUBASTAS 
                             </h3>
                             {auto.historial_subastas?.map((sub, idx) => (
                                 <div key={idx} className="p-5 bg-zinc-800/30 border border-zinc-700/50 rounded-2xl flex justify-between items-center">
