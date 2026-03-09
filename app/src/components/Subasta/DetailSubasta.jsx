@@ -86,8 +86,8 @@ export function DetailSubasta() {
                                 
                                 <div className="flex flex-wrap gap-2 mb-8">
                                     <span className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border ${
-                                        subasta.estado === 'Activa' 
-                                        ? 'bg-green-500/10 text-green-500 border-green-500/20 shadow-[0_0_15px_rgba(34,197,94,0.1)]' 
+                                        subasta.estado === 'ACTIVA' 
+                                        ? 'bg-green-500/20 text-green-400 border-green-500/30'
                                         : 'bg-zinc-800 text-zinc-500 border-zinc-700'
                                     }`}>
                                         {subasta.estado}
@@ -143,9 +143,8 @@ export function DetailSubasta() {
                                 <div className="space-y-1">
                                     <h2 className="text-3xl font-black text-white flex items-center gap-3 italic uppercase tracking-tighter">
                                         <Gavel className="h-8 w-8 text-red-600" />
-                                        Mesa de Ofertas
+                                        Historial de Pujas
                                     </h2>
-                                    <p className="text-zinc-500 text-sm font-medium">Sigue el rastro de la victoria en tiempo real.</p>
                                 </div>
                                 <div className="bg-zinc-800 px-4 py-2 rounded-2xl border border-zinc-700">
                                     <span className="text-[10px] block text-zinc-500 font-black uppercase tracking-tighter text-center">Pujas</span>
@@ -156,8 +155,6 @@ export function DetailSubasta() {
                             {pujas.length === 0 ? (
                                 <div className="flex-1 flex flex-col items-center justify-center text-center py-20 bg-black/20 rounded-3xl border border-dashed border-zinc-800">
                                     <TrendingUp className="h-12 w-12 text-zinc-800 mb-4" />
-                                    <p className="text-zinc-500 italic font-bold uppercase tracking-widest text-sm">Circuito Vacío</p>
-                                    <p className="text-zinc-600 text-xs mt-2">Nadie ha tomado la delantera. ¡Inicia la puja!</p>
                                 </div>
                             ) : (
                                 <div className="space-y-4 max-h-[600px] overflow-y-auto pr-4 custom-scrollbar">

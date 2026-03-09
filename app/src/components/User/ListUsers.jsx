@@ -48,11 +48,8 @@ export function ListUsers() {
                     <div className="absolute -left-8 top-0 w-1 h-16 bg-blue-600 hidden md:block" />
                     <h1 className="text-4xl md:text-5xl font-black tracking-tighter flex items-center gap-4 text-white uppercase italic leading-none">
                         <Users className="h-10 w-10 text-blue-500" />
-                        DIRECTORIO DE <span className="text-blue-500">USUARIOS</span>
+                        Gestión DE <span className="text-blue-500">USUARIOS</span>
                     </h1>
-                    <p className="text-zinc-500 text-lg font-medium max-w-2xl">
-                        Panel de control para la gestión de Compradores, Vendedores y administradores del sistema.
-                    </p>
                 </div>
 
                 {/* Grid de Tarjetas de Perfil */}

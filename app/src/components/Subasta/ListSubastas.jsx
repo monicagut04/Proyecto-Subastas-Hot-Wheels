@@ -95,21 +95,16 @@ export function ListSubastas() {
                     <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
                         {subastasAMostrar.map((subasta) => (
                             <div key={subasta.id_subasta} className="group relative bg-zinc-900/40 border border-zinc-800 rounded-[2rem] p-8 shadow-2xl hover:border-red-600/50 transition-all duration-500 flex flex-col justify-between overflow-hidden">
-                                
-                                {/* Decoración de fondo */}
-                                <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-30 transition-opacity">
-                                    <Gavel className="h-24 w-24 -rotate-12 text-white" />
-                                </div>
-
                                 {/* Etiqueta de Estado */}
+                                {vistaActual === 'finalizadas' && (
                                 <div className={`inline-flex items-center gap-2 mb-6 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border self-start ${
-                                    subasta.estado === 'Activa' 
+                                    subasta.estado === 'ACTIVA' 
                                     ? 'bg-green-500/10 text-green-500 border-green-500/20' 
                                     : 'bg-zinc-800 text-zinc-500 border-zinc-700'
                                 }`}>
                                     <span className={`h-1.5 w-1.5 rounded-full ${subasta.estado === 'Activa' ? 'bg-green-500 animate-pulse' : 'bg-zinc-500'}`} />
                                     {subasta.estado}
-                                </div>
+                                </div>)}
 
                                 <div className="relative z-10">
                                     <h3 className="text-2xl font-black text-white mb-4 uppercase italic tracking-tighter group-hover:text-red-500 transition-colors">
@@ -117,12 +112,15 @@ export function ListSubastas() {
                                     </h3>
                                     
                                     <div className="space-y-4 mb-8">
+
+                                        {vistaActual === 'activas' && (
                                         <div className="flex items-center justify-between text-xs">
-                                            <span className="text-zinc-500 font-bold uppercase tracking-widest">Inicio de Puja</span>
+                                            <span className="text-zinc-500 font-bold uppercase tracking-widest">Inicio de Subasta</span>
                                             <span className="text-zinc-300 font-mono bg-zinc-800/50 px-2 py-1 rounded">{subasta.fecha_inicio}</span>
                                         </div>
+                                        )}
                                         <div className="flex items-center justify-between text-xs">
-                                            <span className="text-zinc-500 font-bold uppercase tracking-widest">Cierre de Puja</span>
+                                            <span className="text-zinc-500 font-bold uppercase tracking-widest">Cierre de Subasta</span>
                                             <span className="text-zinc-300 font-mono bg-zinc-800/50 px-2 py-1 rounded">{subasta.fecha_fin}</span>
                                         </div>
                                         

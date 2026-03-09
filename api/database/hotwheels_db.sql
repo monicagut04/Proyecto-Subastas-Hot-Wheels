@@ -379,3 +379,37 @@ COMMIT;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+
+-- =========================================================================
+-- 1. INSERTAR NUEVAS CATEGORÍAS EN LA TABLA 'colecciones'
+-- =========================================================================
+INSERT INTO `colecciones` (`nombre_serie`, `anio_lanzamiento`, `descripcion`) VALUES
+('JDM Legends', 2024, 'Vehículos clásicos y modernos del mercado interno japonés.'),
+('Muscle Mania', 2024, 'Autos musculosos americanos clásicos y modernos.'),
+('Exotics', 2023, 'Súper autos y vehículos exóticos de alto rendimiento.'),
+('HW Flames', 2023, 'Vehículos decorados con las clásicas flamas de Hot Wheels.'),
+('Zamac', 2024, 'Ediciones especiales sin pintar, mostrando el metal expuesto (Zink, Aluminum, Magnesium, and Copper).');
+
+-- NOTA TÉCNICA: Como tu tabla tiene AUTO_INCREMENT, y ya tenías 4 colecciones, 
+-- estas nuevas tomarán automáticamente los IDs: 5, 6, 7, 8 y 9.
+
+-- =========================================================================
+-- 2. VINCULAR LAS CATEGORÍAS A LOS AUTOS EN LA TABLA PUENTE 'auto_colecciones'
+-- =========================================================================
+-- Recuerda tus autos actuales: 
+-- 1 = Nissan Skyline, 2 = Chevy Camaro, 3 = Bone Shaker, 4 = Porsche 964
+
+INSERT INTO `auto_colecciones` (`id_auto`, `id_coleccion`) VALUES
+-- Agregamos categorías al Nissan Skyline (ID 1)
+(1, 5), -- Le agregamos 'JDM Legends'
+
+-- Agregamos categorías al Chevy Camaro (ID 2)
+(2, 6), -- Le agregamos 'Muscle Mania'
+(2, 8), -- Le agregamos 'HW Flames'
+
+-- Agregamos categorías al Bone Shaker (ID 3)
+(3, 8), -- Le agregamos 'HW Flames'
+(3, 9), -- Le agregamos 'Zamac'
+
+-- Agregamos categorías al Porsche 964 (ID 4)
+(4, 7); -- Le agregamos 'Exotics'

@@ -67,11 +67,11 @@ export function DetailUser() {
 
                         <div className="mt-8 text-center space-y-4">
                             <span className={`inline-flex items-center gap-2 px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-widest border shadow-lg ${
-                                user.data.estado === 'Activo' 
+                                user.data.estado === 'ACTIVO' 
                                 ? 'bg-green-500/10 text-green-500 border-green-500/30' 
                                 : 'bg-red-500/10 text-red-500 border-red-500/30'
                             }`}>
-                                <span className={`h-2 w-2 rounded-full ${user.data.estado === 'Activo' ? 'bg-green-500 animate-pulse' : 'bg-red-500'}`} />
+                                <span className={`h-2 w-2 rounded-full ${user.data.estado === 'ACTIVO' ? 'bg-green-500 animate-pulse' : 'bg-red-500'}`} />
                                 {user.data.estado}
                             </span>
                         </div>
