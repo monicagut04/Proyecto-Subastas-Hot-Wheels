@@ -6,7 +6,8 @@
 -- Tiempo de generación: 04-03-2026 a las 02:42:51
 -- Versión del servidor: 10.4.28-MariaDB
 -- Versión de PHP: 8.2.4
-
+CREATE DATABASE  IF NOT EXISTS `hotwheels_db`;
+USE `hotwheels_db`;
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
 SET time_zone = "+00:00";
@@ -413,3 +414,10 @@ INSERT INTO `auto_colecciones` (`id_auto`, `id_coleccion`) VALUES
 
 -- Agregamos categorías al Porsche 964 (ID 4)
 (4, 7); -- Le agregamos 'Exotics'
+
+-- Insertamos la imagen 'global.jpg' como secundaria (es_portada = 0) para los 4 autos registrados
+INSERT INTO `imagenes` (`id_auto`, `nombre_imagen`, `es_portada`) VALUES
+(1, 'global.jpg', 0),
+(2, 'global.jpg', 0),
+(3, 'global.jpg', 0),
+(4, 'global.jpg', 0);

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import AutoService from '../../services/AutoService';
-import { User, Activity, Calendar, Gavel, ArrowLeft, ChevronRight, ImageIcon, Loader2, AlertCircle, ShieldCheck, Star, Package, Hash, Tag, FileText } from "lucide-react";
+import { User, Activity, ChevronLeft, Gavel, ArrowLeft, ChevronRight, ImageIcon, Loader2, AlertCircle, ShieldCheck, Star, Package, Hash, Tag, FileText } from "lucide-react";
 
 export function DetailAuto() {
     const navigate = useNavigate();
@@ -10,7 +10,49 @@ export function DetailAuto() {
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(true);
 
+const [currentImageIndex, setCurrentImageIndex] = useState(0);
     const IMAGE_URL = "/img/"; 
+
+    // 1. Extraemos las imágenes
+    const imagenesRaw = auto?.imagenes || [];
+
+    // 2. Algoritmo de reordenamiento (Clean Code)
+    // Encontramos la imagen que está marcada como portada
+    const imagenPortada = imagenesRaw.find(img => img.es_portada == "1");
+    // Filtramos todas las demás que NO son la portada
+    const imagenesSecundarias = imagenesRaw.filter(img => img.es_portada != "1");
+    
+    // 3. Ensamblamos el arreglo final forzando la portada en el índice [0]
+    const imagenes = imagenPortada ? [imagenPortada, ...imagenesSecundarias] : imagenesSecundarias;
+
+    // Temporizador de Autoplay (5 segundos)
+    useEffect(() => {
+        if (imagenes.length <= 1) return;
+
+        const timer = setInterval(() => {
+            setCurrentImageIndex((prev) => 
+                prev === imagenes.length - 1 ? 0 : prev + 1
+            );
+        }, 5000);
+
+        return () => clearInterval(timer);
+    }, [imagenes.length]);
+
+    // Controles manuales
+    const prevImage = () => {
+        setCurrentImageIndex((prev) => (prev === 0 ? imagenes.length - 1 : prev - 1));
+    };
+
+    const nextImage = () => {
+        setCurrentImageIndex((prev) => (prev === imagenes.length - 1 ? 0 : prev + 1));
+    };
+
+    const goToImage = (index) => {
+        setCurrentImageIndex(index);
+    };
+    // ==========================================
+
+    
 
     useEffect(() => {
         const fetchData = async () => {
@@ -47,8 +89,6 @@ export function DetailAuto() {
         </div>
     );
 
-    // Buscamos la portada en el array de imágenes del JSON
-    const portada = auto.imagenes?.find(img => img.es_portada == "1") || auto.imagenes?.[0];
 
     return (
         <div className="min-h-screen bg-black text-zinc-100 py-12 px-4 md:px-6">
@@ -63,16 +103,66 @@ export function DetailAuto() {
                     
                     {/* COLUMNA IZQUIERDA: VISUAL */}
                     <div className="w-full lg:w-5/12 space-y-6">
-                        <div className="aspect-square bg-zinc-900 rounded-[3rem] border border-zinc-800 flex items-center justify-center p-8 relative overflow-hidden shadow-[0_0_50px_rgba(220,38,38,0.1)]">
-                            <span className="absolute top-6 left-6 bg-red-600 text-white text-[10px] font-black px-4 py-1 rounded-lg uppercase tracking-widest z-10">
+                                                {/* ================= CARRUSEL VISUAL ================= */}
+                        <div className="relative w-full aspect-square md:aspect-square lg:aspect-square bg-zinc-900/80 rounded-[2.5rem] overflow-hidden group border border-zinc-800 shadow-2xl flex items-center justify-center">
+                                                        <span className="absolute top-6 left-6 bg-red-600 text-white text-[10px] font-black px-4 py-1 rounded-lg uppercase tracking-widest z-10">
                                 {auto.rareza}
                             </span>
-                            {portada ? (
-                                <img src={`${IMAGE_URL}${portada.nombre_imagen}`} alt="Auto" className="w-full h-full object-contain drop-shadow-[0_20px_30px_rgba(0,0,0,0.5)]" />
+                            {/* Contenedor de la Imagen Actual */}
+                            {imagenes.length > 0 ? (
+                                <img 
+                                    src={`${IMAGE_URL}${imagenes[currentImageIndex].nombre_imagen}`} 
+                                    alt="Vista del Auto" 
+                                    className="w-full h-full object-contain p-4 transition-opacity duration-500 ease-in-out"
+                                />
                             ) : (
-                                <ImageIcon className="h-20 w-20 text-zinc-800" />
+                                <div className="flex flex-col items-center text-zinc-500">
+                                    <span className="uppercase italic font-black text-sm tracking-widest">
+                                        Sin imágenes registradas
+                                    </span>
+                                </div>
+                            )}
+
+                            {/* Controles de Navegación (Solo si hay más de 1 imagen) */}
+                            {imagenes.length > 1 && (
+                                <>
+                                    {/* Flecha Izquierda */}
+                                    <button 
+                                        onClick={prevImage} 
+                                        className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/60 text-white p-3 rounded-2xl opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-red-600 hover:scale-110 backdrop-blur-sm border border-zinc-700/50"
+                                        aria-label="Imagen anterior"
+                                    >
+                                        <ChevronLeft className="h-6 w-6" />
+                                    </button>
+
+                                    {/* Flecha Derecha */}
+                                    <button 
+                                        onClick={nextImage} 
+                                        className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/60 text-white p-3 rounded-2xl opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-red-600 hover:scale-110 backdrop-blur-sm border border-zinc-700/50"
+                                        aria-label="Siguiente imagen"
+                                    >
+                                        <ChevronRight className="h-6 w-6" />
+                                    </button>
+
+                                    {/* Indicadores de Posición (Puntos Inferiores) */}
+                                    <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-2 bg-black/40 px-4 py-2 rounded-full backdrop-blur-md border border-zinc-800/50">
+                                        {imagenes.map((_, idx) => (
+                                            <button 
+                                                key={idx}
+                                                onClick={() => goToImage(idx)}
+                                                className={`h-2 rounded-full transition-all duration-300 ${
+                                                    idx === currentImageIndex 
+                                                    ? 'w-8 bg-red-600 shadow-[0_0_10px_rgba(220,38,38,0.8)]' 
+                                                    : 'w-2 bg-zinc-500 hover:bg-zinc-300'
+                                                }`}
+                                                aria-label={`Ir a imagen ${idx + 1}`}
+                                            />
+                                        ))}
+                                    </div>
+                                </>
                             )}
                         </div>
+                        {/* ================= FIN DEL CARRUSEL ================= */}
 
                         {/* Ficha Técnica Rápida */}
                         <div className="p-6 bg-zinc-900/50 border border-zinc-800 rounded-[2rem] space-y-4 font-medium">
