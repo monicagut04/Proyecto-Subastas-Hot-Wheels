@@ -83,7 +83,7 @@ export function ListUsers() {
                                     <div className="flex items-center justify-between p-3 bg-black/40 rounded-xl border border-zinc-800/50">
                                         <div className="flex items-center gap-2 text-zinc-500">
                                             <Shield className="h-4 w-4" />
-                                            <span className="text-[10px] font-black uppercase tracking-widest">Rango</span>
+                                            <span className="text-[10px] font-black uppercase tracking-widest">Rol</span>
                                         </div>
                                         <span className="text-xs font-bold text-zinc-200 italic">
                                             {user.rol}
