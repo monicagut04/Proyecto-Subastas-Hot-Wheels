@@ -51,7 +51,7 @@ class SubastaModel
         $vSql = "SELECT id_subasta, id_auto, fecha_fin, estado,precio_base
                 FROM subastas 
                 WHERE estado = 'Finalizada' 
-                ORDER BY fecha_fin DESC;";
+                ORDER BY fecha_fin asc;";
         
         $vResultado = $this->enlace->ExecuteSQL($vSql);
 
@@ -120,11 +120,11 @@ class SubastaModel
      */
     public function pujas($id_subasta)
     {
-        // Obtenemos las pujas ordenadas por fecha descendente (la más reciente primero)
+        // Obtenemos las pujas ordenadas por fecha ascendente
         $vSql = "SELECT id_usuario, monto_ofertado, fecha_hora 
                 FROM pujas 
                 WHERE id_subasta = $id_subasta 
-                ORDER BY fecha_hora asc;";
+                ORDER BY fecha_hora ASC;";
         $vResultado = $this->enlace->ExecuteSQL($vSql);
 
         if (!empty($vResultado) && is_array($vResultado)) {

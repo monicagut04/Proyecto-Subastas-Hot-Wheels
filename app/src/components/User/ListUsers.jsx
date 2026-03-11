@@ -66,7 +66,7 @@ export function ListUsers() {
                                         <UserCheck className="h-6 w-6" />
                                     </div>
                                     <span className={`px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border ${
-                                        user.estado === 'Activo' 
+                                        user.estado === 'ACTIVO' 
                                         ? 'bg-green-500/10 text-green-500 border-green-500/20' 
                                         : 'bg-red-500/10 text-red-500 border-red-500/30'
                                     }`}>
