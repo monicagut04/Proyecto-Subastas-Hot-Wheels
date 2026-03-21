@@ -140,10 +140,19 @@ class RoutesController
 
                     case 'PUT':
                     case 'PATCH':
-                        if ($param1) {
+                        // 🌟 CORRECCIÓN: Primero verificamos si nos piden una acción específica (ej: toggleStatus)
+                        if ($action && method_exists($response, $action)) {
+                            if ($param1 && $param2) {
+                                $response->$action($param1, $param2);
+                            } elseif ($param1) {
+                                $response->$action($param1);
+                            } else {
+                                $response->$action();
+                            }
+                        } 
+                        // Si no hay acción específica, usamos el comportamiento REST por defecto (update)
+                        elseif ($param1) {
                             $response->update($param1);
-                        } elseif ($action && method_exists($response, $action)) {
-                            $response->$action();
                         } else {
                             $response->update();
                         }

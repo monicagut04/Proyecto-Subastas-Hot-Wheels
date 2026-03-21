@@ -35,7 +35,7 @@ export function ListUsers() {
     if (error) return (
         <div className="mx-auto max-w-3xl mt-10 p-6 bg-zinc-900 border border-red-900/50 rounded-2xl flex items-center gap-4 text-red-400 shadow-2xl">
             <AlertCircle className="h-8 w-8 text-red-600" />
-            <p className="text-lg font-bold italic uppercase font-black tracking-tighter">Fallo de Red: {error}</p>
+            <p className="text-lg font-bold italic uppercase tracking-tighter">Fallo de Red: {error}</p>
         </div>
     );
 

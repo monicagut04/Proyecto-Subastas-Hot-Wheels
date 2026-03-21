@@ -36,7 +36,8 @@ class UserModel{
     {
         $vSql = "
         SELECT 
-            u.nombre_completo, 
+            u.nombre_completo,
+            u.correo_electronico, 
             u.rol, 
             u.estado, 
             u.fecha_registro,
@@ -65,8 +66,40 @@ class UserModel{
     
     }
 
+    /**
+     * Actualizar perfil (Solo Nombre y Correo según rúbrica)
+     */
+    public function update($id, $data)
+    {
+        $nombre = $data->nombre_completo;
+        $correo = $data->correo_electronico;
+        
+        // Usamos la actualización clásica. Ajusta 'executeSQL' si tu MySqlConnect usa un método distinto para UPDATEs (ej. executeSQL_DML)
+        $vSql = "UPDATE usuarios SET nombre_completo = '$nombre', correo_electronico = '$correo' WHERE id_usuario = $id";
+        
+        return $this->enlace->executeSQL($vSql);
+    }
 
 
+/**
+     * Cambio lógico de estado (Bloqueo / Activación)
+     */
+    public function toggleStatus($id)
+    {
+        // 1. Obtenemos el estado actual
+        $vSql = "SELECT estado FROM usuarios WHERE id_usuario = $id";
+        $result = $this->enlace->ExecuteSQL($vSql);
+        
+        if (empty($result)) return false;
+        
+        $estadoActual = $result[0]->estado;
+        
+        // 2. Aplicamos la transición de estado coherente
+        $nuevoEstado = ($estadoActual === 'ACTIVO') ? 'BLOQUEADO' : 'ACTIVO';
+        
+        $vSqlUpdate = "UPDATE usuarios SET estado = '$nuevoEstado' WHERE id_usuario = $id";
+        return $this->enlace->executeSQL($vSqlUpdate);
+    }
 
 
 
