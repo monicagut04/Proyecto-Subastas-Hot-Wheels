@@ -421,3 +421,5 @@ INSERT INTO `imagenes` (`id_auto`, `nombre_imagen`, `es_portada`) VALUES
 (2, 'global.jpg', 0),
 (3, 'global.jpg', 0),
 (4, 'global.jpg', 0);
+
+ALTER TABLE `autos` MODIFY COLUMN `estado_actual` enum('DISPONIBLE','EN_SUBASTA','VENDIDO','INACTIVO') DEFAULT 'DISPONIBLE';
