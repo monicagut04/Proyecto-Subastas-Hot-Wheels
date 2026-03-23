@@ -90,49 +90,50 @@ class RoutesController
             return;
         }
 
-        $controller = $routesArray[0] ?? null;
+$controller = $routesArray[0] ?? null;
         $action     = $routesArray[1] ?? null;
         $param1     = $routesArray[2] ?? null;
         $param2     = $routesArray[3] ?? null;
-        // echo "Controller: " . $controller . ", acción: " . $action . ", param1: " . $param1 . ", param2: " . $param2;
 
         try {
-            if ($controller && class_exists($controller)) {
-                $response = new $controller();
+            // 🌟 MAGIA ARQUITECTÓNICA: Transformamos 'subasta' en 'SubastaController'
+            $controllerName = $controller ? ucfirst($controller) . 'Controller' : null;
+            
+            // Verificamos si existe el controlador formateado, o usamos el original por si acaso
+            $finalController = class_exists($controllerName) ? $controllerName : (class_exists($controller) ? $controller : null);
+
+            if ($finalController) {
+                
+                $response = new $finalController();
 
                 switch ($_SERVER['REQUEST_METHOD']) {
                     case 'GET':
                         if ($action && is_numeric($action)) {
-                            // URL del tipo /movie/1
                             $response->get($action);
                         } elseif ($action && method_exists($response, $action)) {
-                            // URL del tipo /movie/recent, /movie/search, etc.
                             if ($param1 && $param2) {
-                                // URL con dos parámetros → /movie/search/2023/drama
                                 $response->$action($param1, $param2);
                             } elseif ($param1) {
-                                // URL con un parámetro → /movie/search/2023
                                 $response->$action($param1);
                             } else {
-                                // URL sin parámetros → /movie/recent
                                 $response->$action();
                             }
                         } elseif (!$action) {
-                            // URL del tipo /movie
                             $response->index();
                         } else {
-                            $json = [
-                                "success" => false,
-                                "status"  => 404,
-                                "message" => 'Acción no encontrada'
-                            ];
-                            echo json_encode($json, http_response_code($json["status"]));
+                            $json = ["success" => false, "status" => 404, "message" => 'Acción no encontrada'];
+                            echo json_encode($json, http_response_code(404));
                         }
                         break;
 
                     case 'POST':
                         if ($action && method_exists($response, $action)) {
-                            $response->$action();
+                            // Ahora POST también acepta parámetros (Ej: /subasta/create)
+                            if ($param1) {
+                                $response->$action($param1);
+                            } else {
+                                $response->$action();
+                            }
                         } else {
                             $response->create();
                         }
@@ -140,8 +141,8 @@ class RoutesController
 
                     case 'PUT':
                     case 'PATCH':
-                        // 🌟 CORRECCIÓN: Primero verificamos si nos piden una acción específica (ej: toggleStatus)
                         if ($action && method_exists($response, $action)) {
+                            // Ahora PUT soporta acciones con parámetros (Ej: /subasta/publish/1)
                             if ($param1 && $param2) {
                                 $response->$action($param1, $param2);
                             } elseif ($param1) {
@@ -149,9 +150,7 @@ class RoutesController
                             } else {
                                 $response->$action();
                             }
-                        } 
-                        // Si no hay acción específica, usamos el comportamiento REST por defecto (update)
-                        elseif ($param1) {
+                        } elseif ($param1) {
                             $response->update($param1);
                         } else {
                             $response->update();
@@ -159,35 +158,35 @@ class RoutesController
                         break;
 
                     case 'DELETE':
-                        if ($param1) {
+                        if ($action && method_exists($response, $action)) {
+                            if ($param1) {
+                                $response->$action($param1);
+                            } else {
+                                $response->$action();
+                            }
+                        } elseif ($param1) {
                             $response->delete($param1);
-                        } elseif ($action && method_exists($response, $action)) {
-                            $response->$action();
                         } else {
                             $response->delete();
                         }
                         break;
 
                     default:
-                        $json = [
-                            "success" => false,
-                            "status"  => 405,
-                            "message" => 'Método HTTP no permitido'
-                        ];
-                        echo json_encode($json, http_response_code($json["status"]));
+                        $json = ["success" => false, "status" => 405, "message" => 'Método HTTP no permitido'];
+                        echo json_encode($json, http_response_code(405));
                         break;
                 }
             } else {
                 $json = [
                     "success" => false,
                     "status"  => 404,
-                    "message" => 'Controlador no encontrado'
+                    "message" => "Controlador no encontrado en el servidor"
                 ];
-                echo json_encode($json, http_response_code($json["status"]));
+                echo json_encode($json, http_response_code(404));
             }
         } catch (\Throwable $th) {
-            $json = ['status' => 500, 'result' => $th->getMessage()];
-            echo json_encode($json, http_response_code($json["status"]));
+            $json = ['success' => false, 'status' => 500, 'message' => $th->getMessage()];
+            echo json_encode($json, http_response_code(500));
         }
     }
 }

@@ -2,7 +2,10 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import SubastaService from '../../services/SubastaService';
 import { Gavel, Clock, Tag, UserCircle, ArrowLeft, Loader2, AlertCircle, ImageIcon, Trophy, TrendingUp } from "lucide-react";
-
+import { useAuth } from '../../hooks/useAuth';
+import toast from 'react-hot-toast';
+import { Button } from "../ui/button";
+import { CheckCircle, XCircle, Edit3 } from "lucide-react";
 export function DetailSubasta() {
     const navigate = useNavigate();
     const { id } = useParams();
@@ -12,6 +15,36 @@ export function DetailSubasta() {
     const [loading, setLoading] = useState(true);
 
     const IMAGE_URL = "/img/";
+    //  EXTRAEMOS AL USUARIO SIMULADO 
+    const { currentUser } = useAuth();
+    
+    // Reglas de visualización
+//  Usamos Number() para asegurar que comparemos Número con Número
+    const isOwner = subasta && Number(currentUser?.id_usuario) === Number(subasta.id_vendedor);
+    const hasPujas = pujas.length > 0;
+    const canCancelOrEdit = subasta && (subasta.estado === 'BORRADOR' || subasta.estado === 'ACTIVA') && !hasPujas;
+
+    //  ACCIONES DE LA MÁQUINA DE ESTADOS 
+    const handlePublish = async () => {
+        try {
+            await SubastaService.publishSubasta(id);
+            toast.success("Subasta publicada y visible para todos");
+            window.location.reload(); // Recarga para ver el cambio a ACTIVA
+        } catch (err) {
+            toast.error(err.response?.data?.message || "Error al publicar");
+        }
+    };
+
+    const handleCancel = async () => {
+        if (!window.confirm("¿Estás seguro de cancelar esta subasta? El auto volverá a tu garaje.")) return;
+        try {
+            await SubastaService.cancelSubasta(id);
+            toast.success("Subasta cancelada exitosamente");
+            window.location.reload(); // Recarga para ver el cambio a CANCELADA
+        } catch (err) {
+            toast.error(err.response?.data?.message || "Error al cancelar");
+        }
+    };
 
     useEffect(() => {
         const fetchDetalle = async () => {
@@ -68,7 +101,7 @@ export function DetailSubasta() {
                             
                             {/* Imagen con Overlay de Gradiente */}
                             <div className="aspect-video w-full bg-zinc-800 flex items-center justify-center relative group">
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
+                                <div className="absolute inset-0 bg-linear-to-t from-black/80 to-transparent" />
                                 {subasta.imagen_objeto ? (
                                     <img src={`${IMAGE_URL}${subasta.imagen_objeto}`} alt="Objeto" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
                                 ) : (
@@ -80,7 +113,50 @@ export function DetailSubasta() {
                             </div>
                             
                             <div className="p-8">
+                                {/* ================= PANEL DEL VENDEDOR ================= */}
+                                {isOwner && subasta.estado === 'BORRADOR' && (
+                                    <div className="mt-6 mb-8 p-4 bg-zinc-900/80 border border-blue-900/30 rounded-2xl">
+                                        <p className="text-[10px] text-blue-400 font-black uppercase tracking-widest mb-3">Panel de Vendedor</p>
+                                        <div className="flex flex-wrap gap-3">
+                                            
+                                            {/* Botón Publicar: Solo visible si es BORRADOR */}
+                                            {subasta.estado === 'BORRADOR' && (
+                                                <Button onClick={handlePublish} className="bg-green-600 hover:bg-green-700 text-white font-bold flex items-center gap-2">
+                                                    <CheckCircle className="h-4 w-4" /> Publicar Subasta
+                                                </Button>
+                                            )}
+
+                                            {/* Botón Cancelar: Visible si no hay pujas y no está finalizada/cancelada */}
+                                            {canCancelOrEdit && (
+                                                <Button variant="destructive" onClick={handleCancel} className="font-bold flex items-center gap-2">
+                                                    <XCircle className="h-4 w-4" /> Cancelar Subasta
+                                                </Button>
+                                            )}
+
+                                            {/* Botón Editar: Cumpliendo la regla de que no tenga pujas ni haya iniciado */}
+                                            {canCancelOrEdit && (
+                                                <Button variant="outline" onClick={() => navigate(`/subasta/update/${id}`)} className="border-zinc-700 text-zinc-300 hover:text-white hover:bg-zinc-800 font-bold flex items-center gap-2">
+                                                    <Edit3 className="h-4 w-4" /> Editar Configuración
+                                                </Button>
+                                            )}
+
+                                            {hasPujas && (subasta.estado === 'ACTIVA' || subasta.estado === 'FINALIZADA') && (
+                                                <span className="text-xs font-bold text-yellow-500 bg-yellow-500/10 px-3 py-2 rounded-lg border border-yellow-500/20 flex items-center">
+                                                    Subasta bloqueada para edición (Ya existen pujas)
+                                                </span>
+                                            )}
+                                        </div>
+                                    </div>
+                                )}
+                                {/* ================= FIN PANEL ================= */}
                                 <h1 className="text-4xl font-black text-white mb-4 uppercase italic tracking-tighter leading-none">
+                                    {/* 🌟 REQUISITO RÚBRICA: USUARIO CREADOR 🌟 */}
+                                <div className="flex items-center gap-2 mb-6 bg-zinc-900/50 w-fit px-4 py-2 rounded-xl border border-zinc-800">
+                                    <UserCircle className="h-5 w-5 text-blue-500" />
+                                    <span className="text-xs font-black text-zinc-500 uppercase tracking-widest">
+                                        Creador: <span className="text-zinc-200 ml-1">{subasta.vendedor || "Desconocido"}</span>
+                                    </span>
+                                </div>
                                     {subasta.nombre_objeto}
                                 </h1>
                                 
@@ -157,13 +233,13 @@ export function DetailSubasta() {
                                     <TrendingUp className="h-12 w-12 text-zinc-800 mb-4" />
                                 </div>
                             ) : (
-                                <div className="space-y-4 max-h-[600px] overflow-y-auto pr-4 custom-scrollbar">
+                                <div className="space-y-4 max-h-150 overflow-y-auto pr-4 custom-scrollbar">
                                     {pujas.map((puja, idx) => (
                                         <div 
                                             key={idx} 
                                             className={`group relative flex items-center justify-between p-6 rounded-2xl border transition-all duration-300 ${
                                                 idx === 0 
-                                                ? 'bg-gradient-to-r from-yellow-500/10 to-transparent border-yellow-500/30 shadow-[0_0_20px_rgba(234,179,8,0.1)]' 
+                                                ? 'bg-linear-to-r from-yellow-500/10 to-transparent border-yellow-500/30 shadow-[0_0_20px_rgba(234,179,8,0.1)]' 
                                                 : 'bg-zinc-900/50 border-zinc-800/50 hover:border-zinc-700'
                                             }`}
                                         >

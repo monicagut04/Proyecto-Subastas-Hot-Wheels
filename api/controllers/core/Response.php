@@ -12,45 +12,48 @@ class Response
 
     public function toJSON($response = [], $message = "")
     {
-        // Caso éxito
-        if (!empty($response)) {
+        // 1. Caso de Éxito (Si el status es 200-299)
+        if ($this->status >= 200 && $this->status < 300) {
+            
+            // Garantizamos que si no hay datos, envíe un arreglo vacío en lugar de null.
+            // Esto evita que React (.map) tire errores.
+            $data = empty($response) ? [] : $response;
+
             $json = [
                 "success" => true,
-                "status"  => 200,
+                "status"  => $this->status,
                 "message" => $message ?: "Solicitud exitosa",
-                "data"    => $response
+                "data"    => $data
             ];
-            $this->status = 200;
-
-            // Caso sin resultados 
-        } elseif ($response === [] || $response === null) {
+        } 
+        // 2. Caso de No Encontrado (Solo si el controlador explícitamente pide un 404)
+        elseif ($this->status === 404) {
             $json = [
                 "success" => false,
                 "status"  => 404,
                 "message" => $message ?: "Recurso no encontrado",
                 "error"   => [
                     "code" => "NOT_FOUND",
-                    "details" => "El recurso solicitado no existe o no contiene datos"
+                    "details" => "El recurso solicitado no existe o fue eliminado."
                 ]
             ];
-            $this->status = 404;
-
-            // Caso error interno
-        } else {
+        } 
+        // 3. Caso de Errores Generales (400 Bad Request, 500 Internal Error, etc.)
+        else {
             $json = [
                 "success" => false,
-                "status"  => 500,
-                "message" => $message ?: "Error interno del servidor",
+                "status"  => $this->status,
+                "message" => $message ?: "Error al procesar la solicitud",
                 "error"   => [
-                    "code" => "INTERNAL_ERROR",
-                    "details" => "Ocurrió un error inesperado"
+                    "code" => "HTTP_ERROR_" . $this->status,
+                    "details" => "Revisa los parámetros de la petición o las reglas de negocio."
                 ]
             ];
-            $this->status = 500;
         }
 
-        // Escribir respuesta JSON con código de estado HTTP
+        // Emitimos la respuesta
         http_response_code($this->status);
         echo json_encode($json, JSON_UNESCAPED_UNICODE);
+        exit; // Buena práctica: detener cualquier otra ejecución de PHP después de enviar JSON
     }
 }

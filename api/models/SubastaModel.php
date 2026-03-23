@@ -17,7 +17,37 @@ class SubastaModel
         // 1. Consulta SIMPLE para traer solo subastas activas
         $vSql = "SELECT id_subasta, id_auto, precio_base, fecha_inicio, fecha_fin
                 FROM subastas 
-                WHERE estado = 'Activa' 
+                WHERE estado = 'ACTIVA'
+                ORDER BY fecha_fin ASC;";
+        
+        $vResultado = $this->enlace->ExecuteSQL($vSql);
+
+        // 2. Recorremos para inyectar datos (Sin JOIN)
+        if (!empty($vResultado) && is_array($vResultado)) {
+            for ($i = 0; $i < count($vResultado); $i++) {
+                $id_auto = $vResultado[$i]->id_auto;
+                $id_subasta = $vResultado[$i]->id_subasta;
+
+                // --- Buscar nombre del auto ---
+                $sqlAuto = "SELECT nombre_modelo FROM autos WHERE id_auto = $id_auto";
+                $auto = $this->enlace->ExecuteSQL($sqlAuto);
+                $vResultado[$i]->nombre_auto = !empty($auto) ? $auto[0]->nombre_modelo : "Desconocido";
+
+                // --- Calcular la cantidad de pujas ---
+                $sqlPujas = "SELECT COUNT(*) as total FROM pujas WHERE id_subasta = $id_subasta";
+                $pujas = $this->enlace->ExecuteSQL($sqlPujas);
+                $vResultado[$i]->cantidad_pujas = !empty($pujas) ? $pujas[0]->total : 0;
+            }
+        }
+        return $vResultado;
+    }
+
+    public function borradores()
+    {
+        // 1. Consulta SIMPLE para traer solo subastas activas
+        $vSql = "SELECT id_subasta, id_auto, precio_base, fecha_inicio, fecha_fin
+                FROM subastas 
+                WHERE estado = 'BORRADOR'
                 ORDER BY fecha_fin ASC;";
         
         $vResultado = $this->enlace->ExecuteSQL($vSql);
@@ -81,7 +111,10 @@ class SubastaModel
     {
         // 1. DATOS COMPLETOS DE LA SUBASTA (Fechas, Precios, Incremento, Estado)
         // La consulta "SELECT *" ya trae precio_inicial, incremento_minimo, fecha_inicio, fecha_fin y estado.
-        $vSql = "SELECT * FROM subastas WHERE id_subasta = $id;";
+        $vSql = "SELECT s.*, u.nombre_completo AS vendedor 
+                FROM subastas s 
+                INNER JOIN usuarios u ON s.id_vendedor = u.id_usuario 
+                WHERE s.id_subasta = $id";
         $vResultado = $this->enlace->ExecuteSQL($vSql);
 
         if (!empty($vResultado)) {
@@ -138,6 +171,146 @@ class SubastaModel
             }
         }
         return $vResultado;
+    }
+
+
+
+    /**
+     * Obtener autos DISPONIBLES de un vendedor específico
+     */
+    public function getAutosDisponibles($id_vendedor) {
+        $vSql = "SELECT id_auto, nombre_modelo FROM autos WHERE id_vendedor = $id_vendedor AND estado_actual = 'DISPONIBLE'";
+        return $this->enlace->ExecuteSQL($vSql);
+    }
+
+    /**
+     * Crear Subasta (Nace como BORRADOR)
+     */
+public function create($data) {
+        $id_auto = (int)$data->id_auto;
+        $id_vendedor = (int)$data->id_vendedor;
+        $fecha_inicio = $data->fecha_inicio;
+        $fecha_fin = $data->fecha_fin;
+        $precio_base = (float)$data->precio_base;
+        $incremento_minimo = (float)$data->incremento_minimo;
+
+        // 1. Lectura (SELECT): Usamos executeSQL
+        $checkAuto = "SELECT estado_actual FROM autos WHERE id_auto = $id_auto AND id_vendedor = $id_vendedor";
+        $estadoAuto = $this->enlace->executeSQL($checkAuto);
+        
+        if (empty($estadoAuto)) {
+            throw new Exception("El vehículo no existe o no te pertenece.");
+        }
+
+        if (strtoupper($estadoAuto[0]->estado_actual) !== 'DISPONIBLE') {
+            throw new Exception("El vehículo debe estar DISPONIBLE.");
+        }
+
+        // 2. Escritura (INSERT): OBLIGATORIO usar executeSQL_DML
+        $sqlInsert = "INSERT INTO subastas (id_auto, id_vendedor, fecha_inicio, fecha_fin, precio_base, incremento_minimo, estado) 
+                    VALUES ($id_auto, $id_vendedor, '$fecha_inicio', '$fecha_fin', $precio_base, $incremento_minimo, 'BORRADOR')";
+        
+        $this->enlace->executeSQL_DML($sqlInsert);
+
+        // 3. Escritura (UPDATE): OBLIGATORIO usar executeSQL_DML
+        $sqlBloqueo = "UPDATE autos SET estado_actual = 'EN_SUBASTA' WHERE id_auto = $id_auto";
+        
+        $this->enlace->executeSQL_DML($sqlBloqueo);
+
+        // 4. Verificación (SELECT): Usamos executeSQL
+        $checkUpdate = "SELECT estado_actual FROM autos WHERE id_auto = $id_auto";
+        $nuevoEstado = $this->enlace->executeSQL($checkUpdate);
+        
+        if(empty($nuevoEstado) || strtoupper($nuevoEstado[0]->estado_actual) !== 'EN_SUBASTA') {
+            throw new Exception("Fallo en Base de Datos: La subasta se creó, pero el auto no cambió de estado.");
+        }
+
+        return true;
+    }
+
+    /**
+     * Publicar Subasta (BORRADOR -> ACTIVA)
+     */
+    public function publish($id_subasta) {
+        $vSql = "UPDATE subastas SET estado = 'ACTIVA' WHERE id_subasta = $id_subasta AND estado = 'BORRADOR'";
+        return $this->enlace->executeSQL($vSql);
+    }
+
+    /**
+     * Cancelar Subasta (Regla: No debe tener pujas)
+     */
+public function cancel($id_subasta) {
+        $id_subasta = (int)$id_subasta;
+
+        // 1. SELECT (Lectura): Verificamos pujas con ExecuteSQL
+        $checkSql = "SELECT estado, (SELECT COUNT(*) FROM pujas WHERE id_subasta = $id_subasta) as total
+                    FROM subastas WHERE id_subasta = $id_subasta";
+        $pujas = $this->enlace->ExecuteSQL($checkSql);
+
+        if(!empty($pujas) && $pujas[0]->total > 0) {
+            throw new Exception("No se puede cancelar una subasta que ya tiene ofertas.");
+        }
+
+        // 2. Validación de Estado Lógico
+        if (strtoupper($pujas[0]->estado) === 'ACTIVA') {
+            throw new Exception("Operación denegada: No es posible cancelar una subasta que ya se encuentra ACTIVA en el mercado.");
+        }
+
+        // 2. UPDATE (Escritura): Cambiamos estado de subasta con executeSQL_DML
+        $vSql = "UPDATE subastas SET estado = 'CANCELADA' WHERE id_subasta = $id_subasta";
+        $this->enlace->executeSQL_DML($vSql);
+
+        // 3. UPDATE (Escritura): Liberamos el auto devolviéndolo a DISPONIBLE
+        $sqlLiberar = "UPDATE autos SET estado_actual = 'DISPONIBLE' WHERE id_auto = (SELECT id_auto FROM subastas WHERE id_subasta = $id_subasta)";
+        $this->enlace->executeSQL_DML($sqlLiberar);
+
+        return true;
+    }
+
+    /**
+     * Listado de Subastas Canceladas
+     */
+    public function canceladas()
+    {
+        $vSql = "SELECT s.id_subasta, s.id_auto, s.precio_base, s.fecha_inicio, s.fecha_fin, s.estado,
+                        a.nombre_modelo AS nombre_auto,
+                        (SELECT COUNT(*) FROM pujas p WHERE p.id_subasta = s.id_subasta) AS cantidad_pujas
+                FROM subastas s
+                INNER JOIN autos a ON s.id_auto = a.id_auto
+                WHERE s.estado = 'CANCELADA'
+                ORDER BY s.fecha_fin DESC;";
+                
+        return $this->enlace->ExecuteSQL($vSql);
+    }
+
+    /**
+     * Editar Subasta (Regla: No iniciada y sin pujas)
+     */
+    public function update($id_subasta, $data) {
+        $fecha_inicio = $data->fecha_inicio;
+        $fecha_fin = $data->fecha_fin;
+        $precio_base = $data->precio_base;
+        $incremento_minimo = $data->incremento_minimo;
+        $id_subasta = (int)$id_subasta;
+        
+        // 1. SELECT (Lectura): Verificamos el estado actual
+        $checkSql = "SELECT estado FROM subastas WHERE id_subasta = $id_subasta";
+        $info = $this->enlace->ExecuteSQL($checkSql);
+
+        if (empty($info)) {
+            throw new Exception("La subasta especificada no existe en el sistema.");
+        }
+
+        // 2. Validación de Estado Lógico
+        if (strtoupper($info[0]->estado) === 'ACTIVA') {
+            throw new Exception("Edición denegada: Las reglas de negocio prohíben modificar una subasta que ya está ACTIVA.");
+        }
+
+        $vSql = "UPDATE subastas 
+                SET fecha_inicio = '$fecha_inicio', fecha_fin = '$fecha_fin', precio_base = $precio_base, incremento_minimo = $incremento_minimo 
+                WHERE id_subasta = $id_subasta";
+        
+        return $this->enlace->executeSQL($vSql);
     }
 }
 ?>

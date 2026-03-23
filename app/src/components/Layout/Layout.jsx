@@ -2,27 +2,43 @@ import Header from "./Header";
 import { Footer } from "./Footer";
 import { Outlet } from "react-router-dom";
 
+// 🌟 1. IMPORTAMOS EL CONTEXTO Y LAS NOTIFICACIONES 🌟
+import { AuthProvider } from "../../context/AuthProvider";
+import { Toaster } from "react-hot-toast";
+
 export function Layout() {
   return (
-    // bg-black asegura que si el contenido es corto, no se vea una franja blanca abajo
-    <div className="flex min-h-screen flex-col bg-black selection:bg-red-600 selection:text-white">
-      
-      {/* Barra de navegación superior */}
-      <Header />
-      
-      {/* pt-20: Ajustado para que el contenido empiece después de nuestro nuevo Header (h-20)
-          pb-20: Espacio elegante antes de llegar al Footer
-          flex-1: Empuja el footer hacia abajo si hay poco contenido
-      */}
-      <main className="flex-1 pt-24 pb-20 animate-in fade-in duration-700">
-        <div className="container mx-auto">
-          <Outlet />
-        </div>
-      </main>
+    // 🌟 2. ENVOLVEMOS TODA LA APLICACIÓN (EL PARAGUAS) 🌟
+    <AuthProvider>
+        <div className="flex min-h-screen flex-col bg-black selection:bg-red-600 selection:text-white">
+          
+          {/* Barra de navegación superior */}
+          <Header />
+          
+          <main className="flex-1 pt-24 pb-20 animate-in fade-in duration-700">
+            <div className="container mx-auto">
+              {/* Outlet son todas tus páginas (Subastas, Autos, Usuarios) */}
+              <Outlet />
+            </div>
+          </main>
 
-      {/* Pie de página */}
-      <Footer />
-      
-    </div>
+          {/* Pie de página */}
+          <Footer />
+          
+          {/* 🌟 3. SISTEMA GLOBAL DE NOTIFICACIONES (DARK MODE) 🌟 */}
+          <Toaster 
+            position="bottom-right" 
+            toastOptions={{
+              style: {
+                background: '#18181b', // zinc-900
+                color: '#fff',
+                border: '1px solid #3f3f46', // zinc-700
+                fontSize: '14px',
+                fontWeight: 'bold',
+              }
+            }} 
+          />
+        </div>
+    </AuthProvider>
   );
 }

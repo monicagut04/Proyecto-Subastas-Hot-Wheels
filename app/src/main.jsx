@@ -15,6 +15,9 @@ import { ListAutos } from './components/Auto/ListAutos'
 import { DetailAuto } from './components/Auto/DetailAuto'
 import { ListSubastas } from './components/Subasta/ListSubastas'
 import { DetailSubasta } from './components/Subasta/DetailSubasta'
+import { UpdateSubasta } from './components/Subasta/UpdateSubasta'
+import { CreateSubasta } from './components/Subasta/CreateSubasta'
+
 
 const rutas = createBrowserRouter([
   {
@@ -36,6 +39,8 @@ const rutas = createBrowserRouter([
       // Rutas de Subastas
       { path: "subasta", element: <ListSubastas /> },
       { path: "subasta/detail/:id", element: <DetailSubasta /> },
+      { path: "subasta/create", element: <CreateSubasta /> }, // (Aprovechamos para asegurar que tienes esta de crear)
+      { path: "subasta/update/:id", element: <UpdateSubasta /> }, // 🌟 LA NUEVA RUTA DE EDICIÓN 🌟
     ]
   }
 ])
