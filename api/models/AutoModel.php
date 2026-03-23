@@ -142,6 +142,7 @@ class AutoModel {
         // 3. Actualizar datos (Incluyendo limpieza de categorías viejas si es necesario)
         // Opcional: Podrías borrar las categorías viejas y meter las nuevas aquí.
 
+        // 3. Actualizar datos principales
         $sql = "UPDATE autos SET 
                 nombre_modelo = '{$data['nombre_modelo']}', 
                 descripcion_detallada = '{$data['descripcion_detallada']}',
@@ -151,12 +152,20 @@ class AutoModel {
                 rareza = '{$data['rareza']}'
                 WHERE id_auto = $id";
         
-        return $this->enlace->executeSQL_DML($sql);
+        $resultado = $this->enlace->executeSQL_DML($sql);
+
+        // 4. Actualizar las colecciones/categorías (Limpiar y volver a insertar)
+        $this->enlace->executeSQL_DML("DELETE FROM auto_colecciones WHERE id_auto = $id");
+        foreach ($cats as $c_id) {
+            $this->enlace->executeSQL_DML("INSERT INTO auto_colecciones (id_auto, id_coleccion) VALUES ($id, $c_id)");
+        }
+
+        return $resultado;
     }
 
     // 🔄 CORRECCIÓN: Toggle que sí guarda en BD
     // 🔄 CORRECCIÓN: Toggle que ahora sí llena tu tabla 'subastas' correctamente
-    public function toggleStatus($id) {
+   public function toggleStatus($id) {
         $res = $this->enlace->executeSQL("SELECT id_vendedor, estado_actual FROM autos WHERE id_auto = $id");
         if (empty($res)) return false;
 
@@ -166,7 +175,7 @@ class AutoModel {
         if ($actual === 'DISPONIBLE') {
             $nuevo = 'EN_SUBASTA';
             
-            // 🌟 INSERT con tus columnas: id_vendedor, fecha_fin, precio_base e incremento_minimo
+            // INSERT con tus columnas: id_vendedor, fecha_fin, precio_base e incremento_minimo
             $sqlSubasta = "INSERT INTO subastas 
                            (id_auto, id_vendedor, fecha_inicio, fecha_fin, precio_base, incremento_minimo, estado) 
                            VALUES 
@@ -174,7 +183,9 @@ class AutoModel {
             $this->enlace->executeSQL_DML($sqlSubasta);
 
         } elseif ($actual === 'EN_SUBASTA') {
-            $nuevo = 'INACTIVO';
+            // 🛠️ CORRECCIÓN: Cambiamos 'INACTIVO' por 'DISPONIBLE' para que no desaparezca de la lista
+            $nuevo = 'DISPONIBLE';
+            
             // Finalizamos la subasta activa
             $this->enlace->executeSQL_DML("UPDATE subastas SET estado = 'FINALIZADA' WHERE id_auto = $id AND estado = 'ACTIVA'");
             
@@ -182,7 +193,7 @@ class AutoModel {
             $nuevo = 'DISPONIBLE';
         }
         
-        // Actualizamos el estado en la tabla autos (ahora sí aceptará INACTIVO)
+        // Actualizamos el estado en la tabla autos
         $this->enlace->executeSQL_DML("UPDATE autos SET estado_actual = '$nuevo' WHERE id_auto = $id");
         return $nuevo;
     }

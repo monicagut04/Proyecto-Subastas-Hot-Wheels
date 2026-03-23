@@ -70,8 +70,15 @@ class RoutesController {
                         break;
 
                     case 'POST':
+                        // 🌟 CORRECCIÓN: Ahora verificamos si existen parámetros y se los pasamos al método correspondiente
                         if ($action && method_exists($response, $action)) {
-                            $response->$action();
+                            if ($param1 && $param2) {
+                                $response->$action($param1, $param2);
+                            } elseif ($param1) {
+                                $response->$action($param1);
+                            } else {
+                                $response->$action();
+                            }
                         } else {
                             $response->create();
                         }
@@ -79,7 +86,6 @@ class RoutesController {
 
                     case 'PUT':
                     case 'PATCH':
-                        // 🌟 CORRECCIÓN: Primero verificamos si nos piden una acción específica (ej: toggleStatus)
                         if ($action && method_exists($response, $action)) {
                             if ($param1 && $param2) {
                                 $response->$action($param1, $param2);
