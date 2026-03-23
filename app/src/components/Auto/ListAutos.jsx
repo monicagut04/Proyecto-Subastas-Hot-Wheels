@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom"; 
 import AutoService from "../../services/AutoService";
-import { User, ImageIcon, ChevronRight, Loader2, AlertCircle, Sparkles, Pencil, Trash2, Plus, RefreshCw } from "lucide-react"; 
+import { User, ImageIcon, ChevronRight, Loader2, AlertCircle, Sparkles, Pencil, Trash2, Plus, RefreshCw, PowerOff } from "lucide-react"; 
 import toast from "react-hot-toast";
 
 export function ListAutos() {
@@ -10,7 +10,6 @@ export function ListAutos() {
     const [loading, setLoading] = useState(true);
     const navigate = useNavigate(); 
 
-    // URL base para las imágenes en tu servidor XAMPP
     const IMAGE_URL = "http://localhost:81/Proyecto-Subastas-Hot-Wheels/uploads/"; 
 
     const fetchData = async () => {
@@ -30,29 +29,23 @@ export function ListAutos() {
         fetchData();
     }, []);
 
-    // FUNCIÓN 1: Cambiar Estado (Toggle entre Disponible e Inactivo)
     const handleToggle = async (id) => {
         try {
             await AutoService.toggleStatus(id);
             toast.success("Estado de la pieza actualizado con éxito");
-            fetchData(); // Refresca la lista
+            fetchData(); 
         } catch (err) {
             toast.error(err.response?.data?.message || "Error al cambiar el estado");
         }
     };
 
-    // FUNCIÓN 2: Eliminar (Eliminación lógica con validación de historial)
     const handleDelete = async (id) => {
         if (!window.confirm("¿Estás seguro de quitar esta pieza del catálogo?")) return;
         
         try {
             await AutoService.deleteAuto(id);
             toast.success("Pieza quitada del inventario");
-            
-            // 🌟 ESTO ES VITAL: Al llamar a fetchData, la lista se vuelve 
-            // a pedir al servidor y el auto ya no vendrá en el paquete.
             fetchData(); 
-            
         } catch (err) {
             toast.error(err.response?.data?.message || "Error al procesar");
         }
@@ -81,7 +74,6 @@ export function ListAutos() {
         <div className="min-h-screen bg-black text-zinc-100 p-4 md:p-12">
             <div className="mx-auto max-w-7xl">
                 
-                {/* Cabecera */}
                 <div className="mb-16 flex flex-col md:flex-row justify-between items-start md:items-end gap-6 relative">
                     <div className="space-y-4">
                         <div className="absolute -left-10 top-0 w-24 h-24 bg-red-600/10 rounded-full blur-[60px] pointer-events-none" />
@@ -102,33 +94,37 @@ export function ListAutos() {
                     </button>
                 </div>
 
-                {/* Grid de Autos */}
                 <div className="grid gap-10 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                     {autos.map((auto) => {
-                        const isDisponible = String(auto.estado_actual).toUpperCase() === 'DISPONIBLE';
+                        const estadoActual = String(auto.estado_actual).toUpperCase();
+                        const isDisponible = estadoActual === 'DISPONIBLE';
+                        const isInactivo = estadoActual === 'INACTIVO';
 
                         return (
-                            <div key={auto.id_auto} className="group relative bg-zinc-900/30 border border-zinc-800 rounded-[2.5rem] overflow-hidden transition-all duration-500 hover:border-red-600/40 hover:bg-zinc-900/60 hover:-translate-y-2 flex flex-col shadow-2xl">
+                            <div key={auto.id_auto} className={`group relative border rounded-[2.5rem] overflow-hidden transition-all duration-500 flex flex-col shadow-2xl ${
+                                isInactivo ? 'bg-zinc-950/80 border-red-900/30 opacity-80' : 'bg-zinc-900/30 border-zinc-800 hover:border-red-600/40 hover:bg-zinc-900/60 hover:-translate-y-2'
+                            }`}>
                                 
-                                {/* Badge de Estado */}
                                 <div className="absolute top-5 right-5 z-20">
-                                    <div className={`px-4 py-1 rounded-full text-[9px] font-black uppercase tracking-widest backdrop-blur-xl border ${
-                                        isDisponible
-                                        ? 'bg-green-500/20 text-green-400 border-green-500/30' 
+                                    <div className={`px-4 py-1 rounded-full text-[9px] font-black uppercase tracking-widest backdrop-blur-xl border flex items-center gap-1 ${
+                                        isDisponible ? 'bg-green-500/20 text-green-400 border-green-500/30' 
+                                        : isInactivo ? 'bg-red-500/20 text-red-500 border-red-500/30' 
                                         : 'bg-zinc-800/80 text-zinc-400 border-zinc-700'
                                     }`}>
+                                        {isInactivo && <PowerOff className="h-3 w-3" />}
                                         {auto.estado_actual}
                                     </div>
                                 </div>
 
-                                {/* Imagen */}
                                 <div className="aspect-4/3 w-full bg-zinc-800 flex items-center justify-center overflow-hidden relative">
                                     <div className="absolute inset-0 bg-linear-to-t from-zinc-900 via-transparent to-transparent z-10 opacity-80" />
                                     {auto.imagen_principal ? (
                                         <img 
                                             src={`${IMAGE_URL}${auto.imagen_principal}`} 
                                             alt={auto.nombre_modelo}
-                                            className="w-full h-full object-contain p-4 group-hover:scale-110 transition-transform duration-700 ease-out"
+                                            className={`w-full h-full object-contain p-4 transition-transform duration-700 ease-out ${
+                                                isInactivo ? 'grayscale opacity-40' : 'group-hover:scale-110'
+                                            }`}
                                             onError={(e) => { e.target.src = "https://via.placeholder.com/300x200?text=Hot+Wheels"; }}
                                         />
                                     ) : (
@@ -141,38 +137,45 @@ export function ListAutos() {
                                 
                                 <div className="p-8 flex-1 flex flex-col">
                                     <div className="mb-6">
-                                        <p className="text-[10px] text-red-500 font-black uppercase tracking-[0.2em] mb-1">{auto.rareza || 'MAINLINE'}</p>
-                                        <h3 className="text-2xl font-black text-white group-hover:text-red-500 transition-colors uppercase italic leading-tight tracking-tighter">
+                                        <p className={`text-[10px] font-black uppercase tracking-[0.2em] mb-1 ${isInactivo ? 'text-zinc-600' : 'text-red-500'}`}>{auto.rareza || 'MAINLINE'}</p>
+                                        <h3 className={`text-2xl font-black uppercase italic leading-tight tracking-tighter ${isInactivo ? 'text-zinc-500' : 'text-white group-hover:text-red-500 transition-colors'}`}>
                                             {auto.nombre_modelo}
                                         </h3>
                                     </div>
 
-                                    {/* SECCIÓN DE BOTONES SEPARADOS */}
                                     <div className="flex flex-col gap-2 mb-6">
                                         <div className="flex gap-2">
                                             <button 
                                                 onClick={() => navigate(`/auto/update/${auto.id_auto}`)}
-                                                className="flex-1 flex items-center justify-center gap-2 py-3 bg-zinc-800 text-white hover:bg-white hover:text-black rounded-xl text-[10px] font-black uppercase transition-all"
+                                                disabled={isInactivo} 
+                                                className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-[10px] font-black uppercase transition-all ${
+                                                    isInactivo ? 'bg-zinc-800/20 text-zinc-600 cursor-not-allowed border border-zinc-800/30' 
+                                                    : 'bg-zinc-800 text-white hover:bg-white hover:text-black'
+                                                }`}
                                             >
                                                 <Pencil className="h-3.5 w-3.5" /> Editar
                                             </button>
+                                            
                                             <button 
                                                 onClick={() => handleToggle(auto.id_auto)}
-                                                className="flex-1 flex items-center justify-center gap-2 py-3 bg-zinc-800/50 text-zinc-400 hover:bg-zinc-100 hover:text-black rounded-xl text-[10px] font-black uppercase transition-all border border-zinc-800"
+                                                className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-[10px] font-black uppercase transition-all border bg-zinc-800/50 text-zinc-400 hover:bg-zinc-100 hover:text-black border-zinc-800"
                                             >
-                                                <RefreshCw className="h-3.5 w-3.5" /> Estado
+                                                <RefreshCw className={`h-3.5 w-3.5 ${isInactivo ? 'text-green-500 animate-pulse' : ''}`} /> Estado
                                             </button>
                                         </div>
                                         
                                         <button 
                                             onClick={() => handleDelete(auto.id_auto)}
-                                            className="w-full flex items-center justify-center gap-2 py-3 bg-red-900/10 text-red-500 hover:bg-red-600 hover:text-white rounded-xl text-[10px] font-black uppercase transition-all border border-red-900/20"
+                                            disabled={isInactivo} 
+                                            className={`w-full flex items-center justify-center gap-2 py-3 rounded-xl text-[10px] font-black uppercase transition-all border ${
+                                                isInactivo ? 'bg-zinc-800/20 text-zinc-700 cursor-not-allowed border-zinc-800/10'
+                                                : 'bg-red-900/10 text-red-500 hover:bg-red-600 hover:text-white border-red-900/20'
+                                            }`}
                                         >
                                             <Trash2 className="h-3.5 w-3.5" /> Eliminar Pieza
                                         </button>
                                     </div>
                                     
-                                    {/* Info Propietario y Link a Detalle */}
                                     <div className="mt-auto space-y-4">
                                         <div className="flex items-center gap-4 p-3 rounded-2xl bg-black/40 border border-zinc-800/50">
                                             <div className="h-8 w-8 rounded-xl bg-zinc-800 flex items-center justify-center text-zinc-500">
@@ -180,12 +183,12 @@ export function ListAutos() {
                                             </div>
                                             <div className="flex flex-col">
                                                 <span className="text-[8px] text-zinc-500 uppercase font-black tracking-tighter">Propietario</span>
-                                                <span className="text-xs text-zinc-200 font-bold italic truncate w-28">{auto.vendedor_nombre}</span>
+                                                <span className="text-xs text-zinc-400 font-bold italic truncate w-28">{auto.vendedor_nombre}</span>
                                             </div>
                                         </div>
                                         
                                         <Link to={`/auto/detail/${auto.id_auto}`} className="block">
-                                            <button className="w-full group/btn flex items-center justify-center gap-3 py-4 bg-white text-black hover:bg-red-600 hover:text-white font-black rounded-2xl transition-all duration-300 uppercase italic tracking-tighter text-sm">
+                                            <button className="w-full group/btn flex items-center justify-center gap-3 py-4 bg-zinc-900 text-zinc-400 hover:bg-zinc-800 hover:text-white font-black rounded-2xl transition-all duration-300 uppercase italic tracking-tighter text-sm border border-zinc-800">
                                                 <span>Ver Ficha Técnica</span>
                                                 <ChevronRight className="h-5 w-5 group-hover/btn:translate-x-2 transition-transform" />
                                             </button>

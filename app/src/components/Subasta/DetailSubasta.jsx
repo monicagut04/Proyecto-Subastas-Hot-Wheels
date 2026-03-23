@@ -6,6 +6,7 @@ import { useAuth } from '../../hooks/useAuth';
 import toast from 'react-hot-toast';
 import { Button } from "../ui/button";
 import { CheckCircle, XCircle, Edit3 } from "lucide-react";
+
 export function DetailSubasta() {
     const navigate = useNavigate();
     const { id } = useParams();
@@ -14,22 +15,23 @@ export function DetailSubasta() {
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(true);
 
-    const IMAGE_URL = "/img/";
-    //  EXTRAEMOS AL USUARIO SIMULADO 
+    // 🌟 CORRECCIÓN: Ruta oficial del servidor XAMPP para las imágenes
+    const IMAGE_URL = "http://localhost:81/Proyecto-Subastas-Hot-Wheels/uploads/"; 
+    
+    // EXTRAEMOS AL USUARIO SIMULADO 
     const { currentUser } = useAuth();
     
     // Reglas de visualización
-//  Usamos Number() para asegurar que comparemos Número con Número
     const isOwner = subasta && Number(currentUser?.id_usuario) === Number(subasta.id_vendedor);
     const hasPujas = pujas.length > 0;
     const canCancelOrEdit = subasta && (subasta.estado === 'BORRADOR' || subasta.estado === 'ACTIVA') && !hasPujas;
 
-    //  ACCIONES DE LA MÁQUINA DE ESTADOS 
+    // ACCIONES DE LA MÁQUINA DE ESTADOS 
     const handlePublish = async () => {
         try {
             await SubastaService.publishSubasta(id);
             toast.success("Subasta publicada y visible para todos");
-            window.location.reload(); // Recarga para ver el cambio a ACTIVA
+            window.location.reload(); 
         } catch (err) {
             toast.error(err.response?.data?.message || "Error al publicar");
         }
@@ -40,7 +42,7 @@ export function DetailSubasta() {
         try {
             await SubastaService.cancelSubasta(id);
             toast.success("Subasta cancelada exitosamente");
-            window.location.reload(); // Recarga para ver el cambio a CANCELADA
+            window.location.reload(); 
         } catch (err) {
             toast.error(err.response?.data?.message || "Error al cancelar");
         }
@@ -103,7 +105,12 @@ export function DetailSubasta() {
                             <div className="aspect-video w-full bg-zinc-800 flex items-center justify-center relative group">
                                 <div className="absolute inset-0 bg-linear-to-t from-black/80 to-transparent" />
                                 {subasta.imagen_objeto ? (
-                                    <img src={`${IMAGE_URL}${subasta.imagen_objeto}`} alt="Objeto" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                                    <img 
+                                        src={`${IMAGE_URL}${subasta.imagen_objeto}`} 
+                                        alt="Objeto" 
+                                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" 
+                                        onError={(e) => { e.target.src = "https://via.placeholder.com/600x400?text=Hot+Wheels"; }} // 🌟 CORRECCIÓN: Prevención de imagen rota
+                                    />
                                 ) : (
                                     <ImageIcon className="h-20 w-20 text-zinc-700" />
                                 )}
@@ -119,21 +126,18 @@ export function DetailSubasta() {
                                         <p className="text-[10px] text-blue-400 font-black uppercase tracking-widest mb-3">Panel de Vendedor</p>
                                         <div className="flex flex-wrap gap-3">
                                             
-                                            {/* Botón Publicar: Solo visible si es BORRADOR */}
                                             {subasta.estado === 'BORRADOR' && (
                                                 <Button onClick={handlePublish} className="bg-green-600 hover:bg-green-700 text-white font-bold flex items-center gap-2">
                                                     <CheckCircle className="h-4 w-4" /> Publicar Subasta
                                                 </Button>
                                             )}
 
-                                            {/* Botón Cancelar: Visible si no hay pujas y no está finalizada/cancelada */}
                                             {canCancelOrEdit && (
                                                 <Button variant="destructive" onClick={handleCancel} className="font-bold flex items-center gap-2">
                                                     <XCircle className="h-4 w-4" /> Cancelar Subasta
                                                 </Button>
                                             )}
 
-                                            {/* Botón Editar: Cumpliendo la regla de que no tenga pujas ni haya iniciado */}
                                             {canCancelOrEdit && (
                                                 <Button variant="outline" onClick={() => navigate(`/subasta/update/${id}`)} className="border-zinc-700 text-zinc-300 hover:text-white hover:bg-zinc-800 font-bold flex items-center gap-2">
                                                     <Edit3 className="h-4 w-4" /> Editar Configuración
