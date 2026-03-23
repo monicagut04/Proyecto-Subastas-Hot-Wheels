@@ -1,55 +1,81 @@
 <?php
-class auto
-{
-    /**
-     * Método para listar todos los autos
-     * Ruta: GET /api/auto
-     */
-    public function index()
-    {
+class auto {
+    
+    // 1. Listado completo
+    public function index() {
         try {
-            $response = new Response();
             $autoM = new AutoModel();
-            
-            // Pedimos todos los autos al modelo
             $result = $autoM->all();
-            
-            // Devolvemos el resultado en JSON
-            $response->toJSON($result);
-            
-        } catch (Exception $e) {
-            $response = new Response();
-            $response->status(500)->toJSON([], "Error en el servidor: " . $e->getMessage());
-            handleException($e);
+            (new Response())->toJSON($result); // 💡 Nota: Asegúrate que tu clase Response no ocupe un 'return'
+        } catch (\Throwable $e) {
+            (new Response())->status(500)->toJSON([], $e->getMessage());
         }
     }
 
-    /**
-     * Método para obtener el detalle de un auto
-     * Ruta: GET /api/auto/{id}
-     */
-    public function get($id)
-    {
+    // 2. Detalle de un auto
+    public function get($id) {
         try {
-            $response = new Response();
             $autoM = new AutoModel();
-            
-            // Pedimos el auto específico por su ID
             $result = $autoM->get($id);
-            
-            if($result) {
-                // Si lo encontró, lo devuelve
-                $response->toJSON($result);
+            if ($result) {
+                (new Response())->toJSON($result);
             } else {
-                // Si no existe, devuelve error 404
-                $response->status(404)->toJSON([], "Auto no encontrado");
+                (new Response())->status(404)->toJSON([], "La pieza no existe");
             }
+        } catch (\Throwable $e) {
+            (new Response())->status(500)->toJSON([], $e->getMessage());
+        }
+    }
+
+    // 3. Crear (POST)
+    public function create() {
+        try {
+            $autoM = new AutoModel();
+            // Pasamos $_POST porque ahí vienen los textos del FormData
+            $result = $autoM->create($_POST); 
+            (new Response())->status(201)->toJSON($result, "¡Hot Wheel registrado!");
+        } catch (\Throwable $e) {
+            (new Response())->status(400)->toJSON([], $e->getMessage());
+        }
+    }
+
+    // 4. Actualizar (POST via /update/id)
+    public function update($id) {
+        try {
+            $autoM = new AutoModel();
+            // 💡 IMPORTANTE: Usamos $_POST porque React envía FormData
+            $result = $autoM->update($id, $_POST);
             
-        } catch (Exception $e) {
-            $response = new Response();
-            $response->status(500)->toJSON([], "Error en el servidor: " . $e->getMessage());
-            handleException($e);
+            (new Response())->toJSON($result, "Registro actualizado correctamente");
+        } catch (\Throwable $e) {
+            (new Response())->status(400)->toJSON([], $e->getMessage());
+        }
+    }
+
+    // 5. Eliminar / Desactivar (POST via /delete/id)
+    public function delete($id) {
+        try {
+            $autoM = new AutoModel();
+            $result = $autoM->delete($id);
+            
+            // Si todo sale bien
+            (new Response())->toJSON($result, "Pieza removida del catálogo.");
+        } catch (\Throwable $e) {
+            // 🌟 ESTO ES CLAVE: Si el modelo lanza el "throw new Exception",
+            // el controlador lo atrapa aquí y se lo manda a React como error.
+            (new Response())->status(400)->toJSON(false, $e->getMessage());
+        }
+    }
+
+    // 6. Cambiar Estado (GET via /toggle/id)
+    public function toggle($id) {
+        try {
+            $autoM = new AutoModel();
+            $result = $autoM->toggleStatus($id);
+            
+            (new Response())->toJSON($result, "Ciclo de estado actualizado");
+        } catch (\Throwable $e) {
+            (new Response())->status(400)->toJSON([], $e->getMessage());
         }
     }
 }
-?>
