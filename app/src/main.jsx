@@ -12,17 +12,16 @@ import { PageNotFound } from './components/Home/PageNotFound'
 import { ListUsers } from './components/User/ListUsers'
 import { DetailUser } from './components/User/DetailUser'
 
-// Módulo de Autos (INCLUYE EL NUEVO FORMULARIO)
+// Módulo de Autos
 import { ListAutos } from './components/Auto/ListAutos'
 import { DetailAuto } from './components/Auto/DetailAuto'
-import { AutoForm } from './components/Auto/AutoForm' // Asegúrate de que el nombre coincida
+import { AutoForm } from './components/Auto/AutoForm' 
 
 // Módulo de Subastas
 import { ListSubastas } from './components/Subasta/ListSubastas'
 import { DetailSubasta } from './components/Subasta/DetailSubasta'
 import { UpdateSubasta } from './components/Subasta/UpdateSubasta'
 import { CreateSubasta } from './components/Subasta/CreateSubasta'
-
 
 const rutas = createBrowserRouter([
   {
@@ -31,19 +30,22 @@ const rutas = createBrowserRouter([
     children: [
       { index: true, element: <Home /> },
       
-      // Rutas de Usuarios (Mantenimiento Administrativo)
+      // Rutas de Usuarios
       { path: "user", element: <ListUsers /> },
       { path: "user/detail/:id", element: <DetailUser /> },
 
-      // Rutas de Autos (Mantenimiento de Objetos)
+      // Rutas de Autos 
       { path: "auto", element: <ListAutos /> },
       { path: "auto/detail/:id", element: <DetailAuto /> },
-      { path: "auto/create", element: <AutoForm /> }, // Ruta para crear
-      { path: "auto/update/:id", element: <AutoForm /> }, // Ruta para editar
+      { path: "auto/create", element: <AutoForm /> }, 
+      { path: "auto/update/:id", element: <AutoForm /> }, 
 
       // Rutas de Subastas
       { path: "subasta", element: <ListSubastas /> },
       { path: "subasta/detail/:id", element: <DetailSubasta /> },
+      // 👇 ESTAS DOS RUTAS FALTABAN PARA QUE EL MÓDULO DE TU COMPAÑERO FUNCIONARA 👇
+      { path: "subasta/create", element: <CreateSubasta /> },
+      { path: "subasta/update/:id", element: <UpdateSubasta /> },
     ]
   }
 ])

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import UserService from '../../services/UserService';
 import { 
-    UserCircle, Shield, Activity, Calendar, TrendingUp, ArrowLeft, Loader2, AlertCircle, Award 
+    UserCircle, Shield, Activity, Calendar, TrendingUp, ArrowLeft, Loader2, AlertCircle, Award, Mail 
 } from "lucide-react";
 import { useForm } from 'react-hook-form';
 import * as yup from 'yup';
@@ -102,23 +102,6 @@ export function DetailUser() {
                     {/* BOTONES ADMINISTRATIVOS Y MODAL */}
                     <div className="flex items-center gap-3">
                         {/* Botón Dinámico: Bloquear / Activar */}
-                        <Button 
-                            variant="outline" 
-                            onClick={handleToggleStatus} 
-                            className={`flex items-center gap-2 border transition-colors ${
-                                user.data.estado === 'ACTIVO' 
-                                ? 'border-red-900/50 text-red-500 hover:bg-red-900/20 hover:border-red-500' 
-                                : 'border-green-900/50 text-green-500 hover:bg-green-900/20 hover:border-green-500'
-                            }`}
-                        >
-                            {/* Cambia el ícono dinámicamente */}
-                            {user.data.estado === 'ACTIVO' ? <PowerOff className="h-4 w-4" /> : <CheckCircle className="h-4 w-4" />}
-                            
-                            {/* Cambia el texto dinámicamente */}
-                            {user.data.estado === 'ACTIVO' ? 'Bloquear' : 'Activar'}
-                        </Button>
-
-                        {/* Modal de Edición */}
                         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                             <DialogTrigger asChild>
                                 <Button className="bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-2">
@@ -150,6 +133,22 @@ export function DetailUser() {
                                 </form>
                             </DialogContent>
                         </Dialog>
+
+                        <Button 
+                            variant="outline" 
+                            onClick={handleToggleStatus} 
+                            className={`flex items-center gap-2 border transition-colors ${
+                                user.data.estado === 'ACTIVO' 
+                                ? 'border-red-900/50 text-red-500 hover:bg-red-900/20 hover:border-red-500' 
+                                : 'border-green-900/50 text-green-500 hover:bg-green-900/20 hover:border-green-500'
+                            }`}
+                        >
+                            {/* Cambia el ícono dinámicamente */}
+                            {user.data.estado === 'ACTIVO' ? <PowerOff className="h-4 w-4" /> : <CheckCircle className="h-4 w-4" />}
+                            
+                            {/* Cambia el texto dinámicamente */}
+                            {user.data.estado === 'ACTIVO' ? 'Bloquear' : 'Activar'}
+                        </Button>
                     </div>
 
                 </div>
@@ -188,10 +187,16 @@ export function DetailUser() {
                                 {user.data.nombre_completo}
                             </h1>
                         </div>
-                        {/* MOSTRAR EL CORREO  */}
-                            <p className="text-zinc-400 font-mono tracking-tight mt-4 text-lg border-l-2 border-blue-500 pl-4">
+                        
+                        {/* MOSTRAR EL CORREO */}
+                        <div className="mt-4">
+                            <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-1 flex items-center gap-2">
+                                <Mail className="h-3 w-3" /> Correo Electrónico
+                            </p>
+                            <p className="text-zinc-400 font-mono tracking-tight text-lg border-l-2 border-blue-500 pl-4">
                                 {user.data.correo_electronico || "Sin correo registrado"}
                             </p>
+                        </div>
 
                         <div className="bg-zinc-900/40 border border-zinc-800 rounded-[2.5rem] p-8 md:p-10 shadow-2xl backdrop-blur-xl">
                             

@@ -5,15 +5,14 @@ class UserModel{
 
     public function __construct()
     {
-    $this->enlace=new MySqlConnect();
-
+        $this->enlace=new MySqlConnect();
     }
-/**
+
+    /**
      * Listar todos los usuarios
      */
     public function all()
     {
-
         $vSql="Select id_usuario,nombre_completo,rol,estado
         from usuarios
         order by nombre_completo asc
@@ -22,14 +21,9 @@ class UserModel{
         $vResultado=$this->enlace->executeSQL($vSql);
 
         return $vResultado;
-    
-
-
-
-
     }
 
-/**
+    /**
      * Obtener el detalle de un usuario
      */
     public function get($id)
@@ -61,9 +55,8 @@ class UserModel{
 
         $vResultado = $this->enlace->ExecuteSQL($vSql);
         
-        // Si encontró al usuario, devolvemos solo el primer objeto (índice 0)
-        return $vResultado[0]; 
-    
+        // 🌟 CORRECCIÓN: Previene error 500 si se busca un ID que no existe
+        return !empty($vResultado) ? $vResultado[0] : null; 
     }
 
     /**
@@ -74,14 +67,13 @@ class UserModel{
         $nombre = $data->nombre_completo;
         $correo = $data->correo_electronico;
         
-        // Usamos la actualización clásica. Ajusta 'executeSQL' si tu MySqlConnect usa un método distinto para UPDATEs (ej. executeSQL_DML)
         $vSql = "UPDATE usuarios SET nombre_completo = '$nombre', correo_electronico = '$correo' WHERE id_usuario = $id";
         
-        return $this->enlace->executeSQL($vSql);
+        // 🌟 CORRECCIÓN: Cambiado a executeSQL_DML para que no colapse al recibir el TRUE de la DB
+        return $this->enlace->executeSQL_DML($vSql);
     }
 
-
-/**
+    /**
      * Cambio lógico de estado (Bloqueo / Activación)
      */
     public function toggleStatus($id)
@@ -98,49 +90,10 @@ class UserModel{
         $nuevoEstado = ($estadoActual === 'ACTIVO') ? 'BLOQUEADO' : 'ACTIVO';
         
         $vSqlUpdate = "UPDATE usuarios SET estado = '$nuevoEstado' WHERE id_usuario = $id";
-        return $this->enlace->executeSQL($vSqlUpdate);
+        
+        // 🌟 CORRECCIÓN: Cambiado a executeSQL_DML para evitar el Fatal Error
+        return $this->enlace->executeSQL_DML($vSqlUpdate);
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 }
 ?>
