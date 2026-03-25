@@ -39,9 +39,10 @@ class AutoModel {
 
             $auto->imagenes = $this->enlace->executeSQL("SELECT nombre_imagen, es_portada FROM imagenes WHERE id_auto = $id");
 
-            $auto->categorias = $this->enlace->executeSQL("SELECT c.id_coleccion, c.nombre_serie FROM colecciones c 
-                                                           INNER JOIN auto_colecciones ac ON c.id_coleccion = ac.id_coleccion 
-                                                           WHERE ac.id_auto = $id");
+            $auto->categorias = $this->enlace->executeSQL
+                            ("SELECT c.id_coleccion, c.nombre_serie FROM colecciones c 
+                             INNER JOIN auto_colecciones ac ON c.id_coleccion = ac.id_coleccion 
+                             WHERE ac.id_auto = $id");
 
             $auto->historial_subastas = $this->enlace->executeSQL("SELECT id_subasta, fecha_inicio, fecha_fin, estado 
                                                                   FROM subastas WHERE id_auto = $id 
@@ -84,7 +85,7 @@ class AutoModel {
     public function update($id, $data) {
         if (empty($data)) $data = $_POST;
         
-        // 🌟 CANDADO DE EDICIÓN: Verificamos el estado del auto
+        //Verificamos el estado del auto
         $checkAuto = $this->enlace->executeSQL("SELECT estado_actual FROM autos WHERE id_auto = $id");
         if ($checkAuto && strtoupper($checkAuto[0]->estado_actual) === 'EN_SUBASTA') {
             throw new Exception("No se puede editar: El vehículo está comprometido en una subasta.");
@@ -130,7 +131,7 @@ class AutoModel {
 
         $actual = strtoupper($res[0]->estado_actual);
 
-        // 🌟 CANDADO DE ESTADO: Rechaza la desactivación si está en subasta
+        // Rechaza la desactivación si está en subasta
         if ($actual === 'EN_SUBASTA') {
             throw new Exception("🚫 ACCIÓN DENEGADA: El vehículo está EN SUBASTA. No se puede desactivar.");
         }
@@ -152,7 +153,7 @@ class AutoModel {
         
         $estadoBD = strtoupper($auto[0]->estado_actual);
 
-        // 🌟 CANDADO DE ELIMINACIÓN
+        // ELIMINACIÓN
         if ($estadoBD === 'EN_SUBASTA') {
             throw new Exception("🚫 ACCIÓN DENEGADA: El Hot Wheel está vinculado a una subasta. No se puede eliminar.");
         }

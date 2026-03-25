@@ -18,7 +18,6 @@ class AutoService {
         return axios.post(BASE_URL, formData);
     }
 
-    // 💡 CAMBIO: Usamos POST y la ruta /update/id
     // AutoService.js
         updateAuto(id, formData) {
             // La ruta debe ser /auto/update/ID

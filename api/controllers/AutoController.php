@@ -43,7 +43,7 @@ class auto {
     public function update($id) {
         try {
             $autoM = new AutoModel();
-            // 💡 IMPORTANTE: Usamos $_POST porque React envía FormData
+            // Usamos $_POST porque React envía FormData
             $result = $autoM->update($id, $_POST);
             
             (new Response())->toJSON($result, "Registro actualizado correctamente");
@@ -61,7 +61,7 @@ class auto {
             // Si todo sale bien
             (new Response())->toJSON($result, "Pieza removida del catálogo.");
         } catch (\Throwable $e) {
-            // 🌟 ESTO ES CLAVE: Si el modelo lanza el "throw new Exception",
+            // Si el modelo lanza el "throw new Exception",
             // el controlador lo atrapa aquí y se lo manda a React como error.
             (new Response())->status(400)->toJSON(false, $e->getMessage());
         }

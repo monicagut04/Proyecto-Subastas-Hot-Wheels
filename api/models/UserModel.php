@@ -91,7 +91,7 @@ class UserModel{
         
         $vSqlUpdate = "UPDATE usuarios SET estado = '$nuevoEstado' WHERE id_usuario = $id";
         
-        // 🌟 CORRECCIÓN: Cambiado a executeSQL_DML para evitar el Fatal Error
+        // Cambiado a executeSQL_DML para evitar el Fatal Error
         return $this->enlace->executeSQL_DML($vSqlUpdate);
     }
 
