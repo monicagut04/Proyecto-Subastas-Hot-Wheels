@@ -95,23 +95,25 @@ export function ListAutos() {
                 </div>
 
                 <div className="grid gap-10 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                    {autos.map((auto) => {
+{autos.map((auto) => {
                         const estadoActual = String(auto.estado_actual).toUpperCase();
                         const isDisponible = estadoActual === 'DISPONIBLE';
-                        const isInactivo = estadoActual === 'INACTIVO';
+                        // Nueva lógica visual: Capturamos el nuevo estado
+                        const isDesactivado = estadoActual === 'DESACTIVADO';
 
                         return (
                             <div key={auto.id_auto} className={`group relative border rounded-[2.5rem] overflow-hidden transition-all duration-500 flex flex-col shadow-2xl ${
-                                isInactivo ? 'bg-zinc-950/80 border-red-900/30 opacity-80' : 'bg-zinc-900/30 border-zinc-800 hover:border-red-600/40 hover:bg-zinc-900/60 hover:-translate-y-2'
+                                isDesactivado ? 'bg-zinc-950/80 border-yellow-900/30 opacity-70 grayscale-50' : 'bg-zinc-900/30 border-zinc-800 hover:border-red-600/40 hover:bg-zinc-900/60 hover:-translate-y-2'
                             }`}>
                                 
                                 <div className="absolute top-5 right-5 z-20">
+                                    {/* Etiqueta Visual de Estado */}
                                     <div className={`px-4 py-1 rounded-full text-[9px] font-black uppercase tracking-widest backdrop-blur-xl border flex items-center gap-1 ${
                                         isDisponible ? 'bg-green-500/20 text-green-400 border-green-500/30' 
-                                        : isInactivo ? 'bg-red-500/20 text-red-500 border-red-500/30' 
+                                        : isDesactivado ? 'bg-yellow-500/20 text-yellow-500 border-yellow-500/30' 
                                         : 'bg-zinc-800/80 text-zinc-400 border-zinc-700'
                                     }`}>
-                                        {isInactivo && <PowerOff className="h-3 w-3" />}
+                                        {isDesactivado && <PowerOff className="h-3 w-3" />}
                                         {auto.estado_actual}
                                     </div>
                                 </div>
@@ -122,9 +124,7 @@ export function ListAutos() {
                                         <img 
                                             src={`${IMAGE_URL}${auto.imagen_principal}`} 
                                             alt={auto.nombre_modelo}
-                                            className={`w-full h-full object-contain p-4 transition-transform duration-700 ease-out ${
-                                                isInactivo ? 'grayscale opacity-40' : 'group-hover:scale-110'
-                                            }`}
+                                            className={`w-full h-full object-contain p-4 transition-transform duration-700 ease-out group-hover:scale-110`}
                                             onError={(e) => { e.target.src = "https://via.placeholder.com/300x200?text=Hot+Wheels"; }}
                                         />
                                     ) : (
@@ -137,40 +137,34 @@ export function ListAutos() {
                                 
                                 <div className="p-8 flex-1 flex flex-col">
                                     <div className="mb-6">
-                                        <p className={`text-[10px] font-black uppercase tracking-[0.2em] mb-1 ${isInactivo ? 'text-zinc-600' : 'text-red-500'}`}>{auto.rareza || 'MAINLINE'}</p>
-                                        <h3 className={`text-2xl font-black uppercase italic leading-tight tracking-tighter ${isInactivo ? 'text-zinc-500' : 'text-white group-hover:text-red-500 transition-colors'}`}>
+                                        <p className={`text-[10px] font-black uppercase tracking-[0.2em] mb-1 ${isDesactivado ? 'text-zinc-500' : 'text-red-500'}`}>{auto.rareza || 'MAINLINE'}</p>
+                                        <h3 className={`text-2xl font-black uppercase italic leading-tight tracking-tighter ${isDesactivado ? 'text-zinc-400' : 'text-white group-hover:text-red-500 transition-colors'}`}>
                                             {auto.nombre_modelo}
                                         </h3>
                                     </div>
 
                                     <div className="flex flex-col gap-2 mb-6">
                                         <div className="flex gap-2">
+                                            {/* El botón de editar siempre está activo a menos que esté en subasta */}
                                             <button 
                                                 onClick={() => navigate(`/auto/update/${auto.id_auto}`)}
-                                                disabled={isInactivo} 
-                                                className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-[10px] font-black uppercase transition-all ${
-                                                    isInactivo ? 'bg-zinc-800/20 text-zinc-600 cursor-not-allowed border border-zinc-800/30' 
-                                                    : 'bg-zinc-800 text-white hover:bg-white hover:text-black'
-                                                }`}
+                                                className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-[10px] font-black uppercase transition-all bg-zinc-800 text-white hover:bg-white hover:text-black border border-zinc-700`}
                                             >
                                                 <Pencil className="h-3.5 w-3.5" /> Editar
                                             </button>
                                             
                                             <button 
                                                 onClick={() => handleToggle(auto.id_auto)}
-                                                className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-[10px] font-black uppercase transition-all border bg-zinc-800/50 text-zinc-400 hover:bg-zinc-100 hover:text-black border-zinc-800"
+                                                className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-[10px] font-black uppercase transition-all border ${isDesactivado ? 'bg-yellow-900/20 text-yellow-500 hover:bg-yellow-600 hover:text-black border-yellow-900/30' : 'bg-zinc-800/50 text-zinc-400 hover:bg-zinc-100 hover:text-black border-zinc-800'}`}
                                             >
-                                                <RefreshCw className={`h-3.5 w-3.5 ${isInactivo ? 'text-green-500 animate-pulse' : ''}`} /> Estado
+                                                <RefreshCw className={`h-3.5 w-3.5 ${isDesactivado ? 'animate-spin-slow' : ''}`} /> Estado
                                             </button>
                                         </div>
                                         
+                                        {/* Botón de Eliminación (Envía a INACTIVO y desaparece del grid) */}
                                         <button 
                                             onClick={() => handleDelete(auto.id_auto)}
-                                            disabled={isInactivo} 
-                                            className={`w-full flex items-center justify-center gap-2 py-3 rounded-xl text-[10px] font-black uppercase transition-all border ${
-                                                isInactivo ? 'bg-zinc-800/20 text-zinc-700 cursor-not-allowed border-zinc-800/10'
-                                                : 'bg-red-900/10 text-red-500 hover:bg-red-600 hover:text-white border-red-900/20'
-                                            }`}
+                                            className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-[10px] font-black uppercase transition-all border bg-red-900/10 text-red-500 hover:bg-red-600 hover:text-white border-red-900/20"
                                         >
                                             <Trash2 className="h-3.5 w-3.5" /> Eliminar Pieza
                                         </button>

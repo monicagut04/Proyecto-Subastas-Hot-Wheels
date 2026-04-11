@@ -1,14 +1,15 @@
 <?php
 class AutoModel {
-    public $enlace;
+public $enlace;
 
-    public function __construct() {
-        $this->enlace = new MySqlConnect();
-    }
+public function __construct() {
+    $this->enlace = new MySqlConnect();
+}
 
-    public function all() {
+public function all() {
         $vSql = "SELECT id_auto, id_vendedor, nombre_modelo, estado_actual, fecha_registro 
                 FROM autos 
+                WHERE estado_actual != 'INACTIVO'
                 ORDER BY fecha_registro ASC;";
         
         $vResultado = $this->enlace->executeSQL($vSql);
@@ -27,7 +28,7 @@ class AutoModel {
         return $vResultado;
     }
 
-   public function get($id) {
+public function get($id) {
         $res = $this->enlace->executeSQL("SELECT * FROM autos WHERE id_auto = $id");
         
         if ($res) {
@@ -41,19 +42,19 @@ class AutoModel {
 
             $auto->categorias = $this->enlace->executeSQL
                             ("SELECT c.id_coleccion, c.nombre_serie FROM colecciones c 
-                             INNER JOIN auto_colecciones ac ON c.id_coleccion = ac.id_coleccion 
-                             WHERE ac.id_auto = $id");
+                            INNER JOIN auto_colecciones ac ON c.id_coleccion = ac.id_coleccion 
+                            WHERE ac.id_auto = $id");
 
             $auto->historial_subastas = $this->enlace->executeSQL("SELECT id_subasta, fecha_inicio, fecha_fin, estado 
-                                                                  FROM subastas WHERE id_auto = $id 
-                                                                  ORDER BY fecha_inicio DESC");
+                                                                FROM subastas WHERE id_auto = $id 
+                                                                ORDER BY fecha_inicio DESC");
 
             return $auto;
         }
         return null;
     }
 
-   public function create($data) {
+public function create($data) {
         if (empty($data)) $data = $_POST;
 
         if (empty($data['nombre_modelo'])) throw new Exception("El nombre del modelo es requerido.");
@@ -82,7 +83,7 @@ class AutoModel {
         throw new Exception("Error al crear el objeto en la base de datos.");
     }
 
-    public function update($id, $data) {
+public function update($id, $data) {
         if (empty($data)) $data = $_POST;
         
         //Verificamos el estado del auto
@@ -125,7 +126,7 @@ class AutoModel {
         return $resultado;
     }
 
-    public function toggleStatus($id) {
+public function toggleStatus($id) {
         $res = $this->enlace->executeSQL("SELECT estado_actual FROM autos WHERE id_auto = $id");
         if (empty($res)) throw new Exception("El auto no existe.");
 
@@ -138,7 +139,7 @@ class AutoModel {
 
         // Si pasa la validación, solo alterna entre Disponible e Inactivo
         if ($actual === 'DISPONIBLE') {
-            $nuevo = 'INACTIVO';
+            $nuevo = 'DESACTIVADO';
         } else {
             $nuevo = 'DISPONIBLE';
         }
@@ -147,7 +148,7 @@ class AutoModel {
         return $nuevo;
     }
 
-    public function delete($id) {
+public function delete($id) {
         $auto = $this->enlace->executeSQL("SELECT estado_actual FROM autos WHERE id_auto = $id");
         if (!$auto) throw new Exception("La pieza no existe.");
         

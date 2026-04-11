@@ -137,7 +137,7 @@ const subastasAMostrar = vistaActual === 'activas' ? activas :
                                     
                                     <div className="space-y-4 mb-8">
 
-                                        {vistaActual === 'activas' && (
+                                        {(vistaActual === 'activas' || vistaActual === 'borradores') && (
                                         <div className="flex items-center justify-between text-xs">
                                             <span className="text-zinc-500 font-bold uppercase tracking-widest">Inicio de Subasta</span>
                                             <span className="text-zinc-300 font-mono bg-zinc-800/50 px-2 py-1 rounded">{subasta.fecha_inicio}</span>
