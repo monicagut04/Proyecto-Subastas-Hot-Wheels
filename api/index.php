@@ -4,6 +4,7 @@ header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With");
 header('Content-Type: application/json');
+date_default_timezone_set('America/Costa_Rica');
 
 // 2. Manejo de Preflight (Evita que la página se caiga al recibir peticiones OPTIONS)
 if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
@@ -23,6 +24,8 @@ require_once "controllers/core/Logger.php";
 require_once "controllers/core/MySqlConnect.php";
 require_once "controllers/core/Request.php";
 require_once "controllers/core/Response.php";
+require_once "controllers/core/PusherService.php";
+
 
 /* --- Middleware --- */
 require_once "middleware/AuthMiddleware.php";
@@ -31,11 +34,16 @@ require_once "middleware/AuthMiddleware.php";
 require_once "models/UserModel.php";
 require_once "models/AutoModel.php";
 require_once "models/SubastaModel.php";
+require_once "models/PujaModel.php";
+
+/* --- Carga de Controladores --- */
 
 /* --- Carga de Controladores --- */
 require_once "controllers/UserController.php";
 require_once "controllers/AutoController.php";
 require_once "controllers/SubastaController.php";
+require_once "controllers/PujaController.php";
+
 
 /* --- Enrutador --- */
 require_once "routes/RoutesController.php";
