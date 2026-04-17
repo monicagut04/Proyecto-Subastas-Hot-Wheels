@@ -423,3 +423,26 @@ INSERT INTO `imagenes` (`id_auto`, `nombre_imagen`, `es_portada`) VALUES
 (4, 'global.jpg', 0);
 
 ALTER TABLE `autos` MODIFY COLUMN `estado_actual` enum('DISPONIBLE','EN_SUBASTA','VENDIDO','INACTIVO') DEFAULT 'DISPONIBLE';
+
+INSERT INTO `usuarios` (`nombre_completo`, `correo_electronico`, `password_hash`, `rol`, `estado`) VALUES
+('Vendedor Experto', 'vendedor2@hw.com', 'hash123', 'VENDEDOR', 'ACTIVO'),
+('JDM Store', 'vendedor3@hw.com', 'hash123', 'VENDEDOR', 'ACTIVO');
+
+-- 2. Completar Compradores (Faltan 3 para llegar a 5)
+INSERT INTO `usuarios` (`nombre_completo`, `correo_electronico`, `password_hash`, `rol`, `estado`) VALUES
+('Luis Inversor', 'comprador3@hw.com', 'hash123', 'COMPRADOR', 'ACTIVO'),
+('Ana Classics', 'comprador4@hw.com', 'hash123', 'COMPRADOR', 'ACTIVO'),
+('Pedro Coleccionista', 'comprador5@hw.com', 'hash123', 'COMPRADOR', 'ACTIVO');
+
+-- 3. Completar Objetos (Falta 1 para llegar a 5)
+INSERT INTO `autos` (`id_vendedor`, `nombre_modelo`, `marca_fabricante`, `numero_serie`, `rareza`, `estado_empaque`, `descripcion_detallada`, `estado_actual`) VALUES
+(5, 'Datsun 510 Wagon', 'Datsun', 'RLC-02', 'RLC', 'BLISTER_PERFECTO', 'Edición exclusiva RLC, pintura rosa Spectraflame.', 'EN_SUBASTA');
+
+-- Asignar imagen y colección al nuevo auto (ID 5)
+INSERT INTO `imagenes` (`id_auto`, `nombre_imagen`, `es_portada`) VALUES (5, 'global.jpg', 1);
+INSERT INTO `auto_colecciones` (`id_auto`, `id_coleccion`) VALUES (5, 5); -- JDM Legends
+
+-- 4. Completar Subastas Activas (Faltan 3 activas/programadas para llegar a 5)
+INSERT INTO `subastas` (`id_auto`, `id_vendedor`, `fecha_inicio`, `fecha_fin`, `precio_base`, `incremento_minimo`, `estado`) VALUES
+(4, 2, '2026-03-01 10:00:00', '2026-03-25 20:00:00', 40000.00, 2500.00, 'ACTIVA'), -- Porsche 964
+(5, 5, '2026-03-02 08:00:00', '2026-03-30 18:00:00', 35000.00, 1500.00, 'ACTIVA'); -- Datsun 510

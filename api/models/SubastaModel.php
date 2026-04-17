@@ -8,6 +8,66 @@ class SubastaModel
         $this->enlace = new MySqlConnect();
     }
 
+/**
+     * 🌟 LÓGICA DE NEGOCIO: Cierre Reactivo (Lazy Evaluation)
+     * Evalúa si la subasta expiró, cambia su estado, determina el ganador y genera el pago.
+     */
+private function verificarCierreYGanador($id_subasta) {
+        $id_subasta = (int)$id_subasta;
+
+        // 1. SINCRONIZACIÓN DE RELOJES (CRÍTICO)
+        // Obliga a PHP a evaluar el tiempo bajo la zona horaria de Costa Rica
+        date_default_timezone_set('America/Costa_Rica');
+
+        // 2. Verificamos el estado actual y la fecha de cierre
+        $sql = "SELECT fecha_fin, estado FROM subastas WHERE id_subasta = $id_subasta";
+        $subasta = $this->enlace->ExecuteSQL($sql);
+
+        if (!empty($subasta) && strtoupper($subasta[0]->estado) === 'ACTIVA') {
+            
+            // 3. USO DE OBJETOS PARA PRECISIÓN EXACTA (Clean Code)
+            $fechaCierre = new DateTime($subasta[0]->fecha_fin);
+            $ahora = new DateTime(); // Captura la hora actual exacta del servidor ajustada a CR
+
+            // Si el momento actual es EXACTAMENTE igual o superó el cierre
+                if ($ahora >= $fechaCierre) {
+                try {
+                    // 1. Cambiamos el estado a FINALIZADA (Se asegura el estado en la interfaz)
+                    $sqlCierre = "UPDATE subastas SET estado = 'FINALIZADA' WHERE id_subasta = $id_subasta";
+                    $this->enlace->executeSQL_DML($sqlCierre);
+
+                    // 2. Determinamos el ganador
+                    $sqlGanador = "SELECT id_usuario, monto_ofertado FROM pujas 
+                                WHERE id_subasta = $id_subasta 
+                                ORDER BY monto_ofertado DESC LIMIT 1";
+                    $ganador = $this->enlace->ExecuteSQL($sqlGanador);
+
+                    // 3. Si hay ganador, intentamos registrar el pago
+                    if (!empty($ganador)) {
+                        $id_ganador = $ganador[0]->id_usuario;
+                        $monto_final = $ganador[0]->monto_ofertado;
+
+                        // 🌟 CORRECCIÓN APLICADA: Alineación exacta con tu tabla `pagos`
+                        $sqlPago = "INSERT INTO pagos (id_subasta, id_usuario, monto_total, fecha_pago, estado_pago) 
+                                    VALUES ($id_subasta, $id_ganador, $monto_final, NOW(), 'PENDIENTE')";
+                        $this->enlace->executeSQL_DML($sqlPago);
+
+                        $sqlganadorsubasta = "UPDATE subastas SET id_ganador = $id_ganador WHERE id_subasta = $id_subasta";
+                        $this->enlace->executeSQL_DML($sqlganadorsubasta);
+                    }else{
+                        $sqlCierreSinPujas = "UPDATE subastas 
+                                            SET estado = 'FINALIZADA', 
+                                            id_ganador = NULL
+                                            WHERE id_subasta = $id_subasta";
+                        $this->enlace->executeSQL_DML($sqlCierreSinPujas);
+                    }
+                } catch (Exception $e) {
+                    // PROTECCIÓN: La subasta sí quedará FINALIZADA y el frontend cargará con normalidad.
+                    error_log("Fallo crítico en generación de pago para subasta $id_subasta: " . $e->getMessage());
+                }
+            }
+        }
+    }
     /**
      * Listado de Subastas Activas
      * Requisito: Máximo 5 campos, incluir cantidad de pujas calculada.
@@ -109,6 +169,7 @@ class SubastaModel
      */
     public function get($id)
     {
+        $this->verificarCierreYGanador($id);
         // 1. DATOS COMPLETOS DE LA SUBASTA (Fechas, Precios, Incremento, Estado)
         // La consulta "SELECT *" ya trae precio_inicial, incremento_minimo, fecha_inicio, fecha_fin y estado.
         $vSql = "SELECT s.*, u.nombre_completo AS vendedor 
@@ -122,16 +183,18 @@ class SubastaModel
             $id_auto = $subasta->id_auto;
 
             // 2. INFORMACIÓN DEL OBJETO: Nombre y Condición
-            $sqlAuto = "SELECT nombre_modelo, estado_empaque as condicion FROM autos WHERE id_auto = $id_auto";
+            $sqlAuto = "SELECT nombre_modelo, estado_empaque as condicion,descripcion_detallada FROM autos WHERE id_auto = $id_auto";
             $auto = $this->enlace->ExecuteSQL($sqlAuto);
             $subasta->nombre_objeto = !empty($auto) ? $auto[0]->nombre_modelo : "Desconocido";
             $subasta->condicion_objeto = !empty($auto) ? $auto[0]->condicion : "Desconocida";
+            $subasta->descripcion_objeto = !empty($auto) ? $auto[0]->descripcion_detallada : "Sin descripción disponible.";
 
             // 3. INFORMACIÓN DEL OBJETO: Imagen principal
-            $sqlImagen = "SELECT nombre_imagen FROM imagenes WHERE id_auto = $id_auto AND es_portada = 1";
-            $imagen = $this->enlace->ExecuteSQL($sqlImagen);
-            $subasta->imagen_objeto = !empty($imagen) ? $imagen[0]->nombre_imagen : null;
-
+            $sqlImagenes = "SELECT nombre_imagen, es_portada 
+                        FROM imagenes WHERE id_auto = $id_auto 
+                        ORDER BY es_portada DESC";
+           $subasta->imagenes = $this->enlace->ExecuteSQL($sqlImagenes);
+            
             // 4. INFORMACIÓN DEL OBJETO: Categoría(s)
             $sqlColecciones = "SELECT nombre_serie FROM colecciones 
                             WHERE id_coleccion IN (SELECT id_coleccion FROM auto_colecciones WHERE id_auto = $id_auto)";
@@ -152,7 +215,8 @@ class SubastaModel
      * Requisito: Quién pujó, monto, fecha y hora en orden cronológico.
      */
     public function pujas($id_subasta)
-    {
+    {   
+        $this->verificarCierreYGanador($id_subasta);
         // Obtenemos las pujas ordenadas por fecha ascendente
         $vSql = "SELECT id_usuario, monto_ofertado, fecha_hora 
                 FROM pujas 
