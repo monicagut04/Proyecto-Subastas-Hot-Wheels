@@ -23,6 +23,9 @@ import { DetailSubasta } from './components/Subasta/DetailSubasta'
 import { UpdateSubasta } from './components/Subasta/UpdateSubasta'
 import { CreateSubasta } from './components/Subasta/CreateSubasta'
 
+// Módulo de Pagos 
+import ListPagos from './components/Pagos/ListPagos'
+
 const rutas = createBrowserRouter([
   {
     path: "/", 
@@ -45,6 +48,9 @@ const rutas = createBrowserRouter([
       { path: "subasta/detail/:id", element: <DetailSubasta /> },
       { path: "subasta/create", element: <CreateSubasta /> },
       { path: "subasta/update/:id", element: <UpdateSubasta /> },
+
+      // Rutas de Pagos 
+      { path: "pagos", element: <ListPagos /> }, 
     ]
   }
 ])

@@ -376,5 +376,7 @@ public function cancel($id_subasta) {
         
         return $this->enlace->executeSQL($vSql);
     }
+
+    
 }
 ?>

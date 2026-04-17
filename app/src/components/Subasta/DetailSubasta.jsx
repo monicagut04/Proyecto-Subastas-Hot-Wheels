@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import SubastaService from '../../services/SubastaService';
 import PujaService from '../../services/PujaService';
+import PagoService from '../../services/PagoService';
 import { usePusherSubasta } from '../../hooks/usePusherSubasta';
 import { isPast, format,intervalToDuration } from 'date-fns';
 import { es } from 'date-fns/locale';
@@ -30,7 +31,7 @@ export function DetailSubasta() {
 
     const { pujas, estadoSubasta, setPujas } = usePusherSubasta(id, []);
 
-    // 🌟 AGREGADO: Lógica de Ordenamiento de Imágenes
+    //Lógica de Ordenamiento de Imágenes
     const imagenesRaw = subasta?.imagenes || [];
     const imagenPortada = imagenesRaw.find(img => String(img.es_portada) === "1");
     const imagenesSecundarias = imagenesRaw.filter(img => String(img.es_portada) !== "1");

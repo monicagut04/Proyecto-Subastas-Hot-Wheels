@@ -16,7 +16,7 @@ class PujaModel {
 
         // 1. Validar Subasta y Vendedor
         $sqlSubasta = "SELECT estado, precio_base, incremento_minimo, id_vendedor, fecha_fin 
-                       FROM subastas WHERE id_subasta = $id_subasta";
+              FROM subastas WHERE id_subasta = $id_subasta";
         $subasta = $this->enlace->ExecuteSQL($sqlSubasta);
 
         if (empty($subasta)) {

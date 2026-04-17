@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Car, Users, Gavel, Home, Menu, X } from "lucide-react";
+import { Car, Users, Gavel, Home, Menu, X, CreditCard } from "lucide-react";
 
 export default function Header() {
   const location = useLocation();
@@ -44,6 +44,9 @@ export default function Header() {
           <Link to="/subasta" className={isActive('/subasta')}>
             <Gavel className="h-4 w-4" /> Subastas
           </Link>
+          <Link to="/pagos" className={isActive('/pagos')}>
+          <CreditCard className="h-4 w-4" /> Mis Pagos
+        </Link>
         </nav>
 
         {/* BOTÓN HAMBURGUESA - MÓVIL (Visible solo en md:hidden) */}

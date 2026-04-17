@@ -7,7 +7,7 @@ export function AuthProvider({ children }) {
     // Aquí definimos (hardcodeamos internamente) quién es el usuario que está "usando" el sistema.
     // Asumimos que tú (ID: 2) eres el vendedor que está operando la aplicación.
     const [currentUser] = useState({
-        id_usuario: 2,
+        id_usuario: 9,
         nombre_completo: "Andrey Vendedor",
         correo_electronico: "vendedor@hw.com",
         rol: "VENDEDOR"

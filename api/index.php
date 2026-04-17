@@ -35,14 +35,14 @@ require_once "models/UserModel.php";
 require_once "models/AutoModel.php";
 require_once "models/SubastaModel.php";
 require_once "models/PujaModel.php";
-
-/* --- Carga de Controladores --- */
+require_once "models/PagoModel.php";
 
 /* --- Carga de Controladores --- */
 require_once "controllers/UserController.php";
 require_once "controllers/AutoController.php";
 require_once "controllers/SubastaController.php";
 require_once "controllers/PujaController.php";
+require_once "controllers/PagoController.php";
 
 
 /* --- Enrutador --- */
