@@ -43,7 +43,6 @@ const rutas = createBrowserRouter([
       // Rutas de Subastas
       { path: "subasta", element: <ListSubastas /> },
       { path: "subasta/detail/:id", element: <DetailSubasta /> },
-      // 👇 ESTAS DOS RUTAS FALTABAN PARA QUE EL MÓDULO DE TU COMPAÑERO FUNCIONARA 👇
       { path: "subasta/create", element: <CreateSubasta /> },
       { path: "subasta/update/:id", element: <UpdateSubasta /> },
     ]
