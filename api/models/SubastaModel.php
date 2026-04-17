@@ -51,6 +51,15 @@ private function verificarCierreYGanador($id_subasta) {
                         $sqlPago = "INSERT INTO pagos (id_subasta, id_usuario, monto_total, fecha_pago, estado_pago) 
                                     VALUES ($id_subasta, $id_ganador, $monto_final, NOW(), 'PENDIENTE')";
                         $this->enlace->executeSQL_DML($sqlPago);
+
+                        $sqlganadorsubasta = "UPDATE subastas SET id_ganador = $id_ganador WHERE id_subasta = $id_subasta";
+                        $this->enlace->executeSQL_DML($sqlganadorsubasta);
+                    }else{
+                        $sqlCierreSinPujas = "UPDATE subastas 
+                                            SET estado = 'FINALIZADA', 
+                                            id_ganador = NULL
+                                            WHERE id_subasta = $id_subasta";
+                        $this->enlace->executeSQL_DML($sqlCierreSinPujas);
                     }
                 } catch (Exception $e) {
                     // PROTECCIÓN: La subasta sí quedará FINALIZADA y el frontend cargará con normalidad.
@@ -174,16 +183,18 @@ private function verificarCierreYGanador($id_subasta) {
             $id_auto = $subasta->id_auto;
 
             // 2. INFORMACIÓN DEL OBJETO: Nombre y Condición
-            $sqlAuto = "SELECT nombre_modelo, estado_empaque as condicion FROM autos WHERE id_auto = $id_auto";
+            $sqlAuto = "SELECT nombre_modelo, estado_empaque as condicion,descripcion_detallada FROM autos WHERE id_auto = $id_auto";
             $auto = $this->enlace->ExecuteSQL($sqlAuto);
             $subasta->nombre_objeto = !empty($auto) ? $auto[0]->nombre_modelo : "Desconocido";
             $subasta->condicion_objeto = !empty($auto) ? $auto[0]->condicion : "Desconocida";
+            $subasta->descripcion_objeto = !empty($auto) ? $auto[0]->descripcion_detallada : "Sin descripción disponible.";
 
             // 3. INFORMACIÓN DEL OBJETO: Imagen principal
-            $sqlImagen = "SELECT nombre_imagen FROM imagenes WHERE id_auto = $id_auto AND es_portada = 1";
-            $imagen = $this->enlace->ExecuteSQL($sqlImagen);
-            $subasta->imagen_objeto = !empty($imagen) ? $imagen[0]->nombre_imagen : null;
-
+            $sqlImagenes = "SELECT nombre_imagen, es_portada 
+                        FROM imagenes WHERE id_auto = $id_auto 
+                        ORDER BY es_portada DESC";
+           $subasta->imagenes = $this->enlace->ExecuteSQL($sqlImagenes);
+            
             // 4. INFORMACIÓN DEL OBJETO: Categoría(s)
             $sqlColecciones = "SELECT nombre_serie FROM colecciones 
                             WHERE id_coleccion IN (SELECT id_coleccion FROM auto_colecciones WHERE id_auto = $id_auto)";
@@ -204,7 +215,8 @@ private function verificarCierreYGanador($id_subasta) {
      * Requisito: Quién pujó, monto, fecha y hora en orden cronológico.
      */
     public function pujas($id_subasta)
-    {
+    {   
+        $this->verificarCierreYGanador($id_subasta);
         // Obtenemos las pujas ordenadas por fecha ascendente
         $vSql = "SELECT id_usuario, monto_ofertado, fecha_hora 
                 FROM pujas 

@@ -1,49 +1,99 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import SubastaService from '../../services/SubastaService';
-import PujaService from '../../services/PujaService'; // 🌟 NUEVO: Servicio de Pujas
-import { usePusherSubasta } from '../../hooks/usePusherSubasta'; // 🌟 NUEVO: Hook de tiempo real
-import { formatDistanceToNow, isPast, format } from 'date-fns'; // 🌟 NUEVO: Manejo de fechas
+import PujaService from '../../services/PujaService';
+import { usePusherSubasta } from '../../hooks/usePusherSubasta';
+import { isPast, format,intervalToDuration } from 'date-fns';
 import { es } from 'date-fns/locale';
-import { Gavel, Clock, UserCircle, ArrowLeft, Loader2, AlertCircle, ImageIcon, Trophy, TrendingUp, CheckCircle, XCircle, Edit3 } from "lucide-react";
+import { Gavel, Clock, UserCircle, ArrowLeft, Loader2, AlertCircle, ImageIcon, Trophy, TrendingUp, CheckCircle, XCircle, Edit3, ChevronLeft, ChevronRight } from "lucide-react";
 import { useAuth } from '../../hooks/useAuth';
 import toast from 'react-hot-toast';
 import { Button } from "../ui/button";
 
 export function DetailSubasta() {
     const navigate = useNavigate();
+    const [currentImgIdx, setCurrentImgIdx] = useState(0);
+    const [isAutoPlaying, setIsAutoPlaying] = useState(true);
     const { id } = useParams();
     const [subasta, setSubasta] = useState(null);
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(true);
-    const [montoOfertar, setMontoOfertar] = useState(''); // 🌟 NUEVO: Estado del input de puja
-
-    // 🌟 CORRECCIÓN: Ruta oficial del servidor XAMPP para las imágenes
+    const [montoOfertar, setMontoOfertar] = useState(''); 
+    const [liderAnterior, setLiderAnterior] = useState(null);
+    const [tiempoAgotado, setTiempoAgotado] = useState(false);
+    const [contadorRestante, setContadorRestante] = useState("--:--:--");
+    
     const IMAGE_URL = "http://localhost:81/Proyecto-Subastas-Hot-Wheels/uploads/"; 
     
-    // EXTRAEMOS AL USUARIO SIMULADO 
     const { currentUser } = useAuth();
-    
-    // 🌟 REQUISITO AVANCE 4: Simulación de Usuario. 
-    // Usamos el de auth si existe, si no, forzamos uno (ej. 2) para pruebas sin login.
     const UsuarioActualID = currentUser ? Number(currentUser.id_usuario) : 2; 
 
-    // 🌟 NUEVO: Hook de Tiempo Real (Reemplaza el useState de pujas tradicional)
     const { pujas, estadoSubasta, setPujas } = usePusherSubasta(id, []);
 
-    // Reglas de visualización
+    // 🌟 AGREGADO: Lógica de Ordenamiento de Imágenes
+    const imagenesRaw = subasta?.imagenes || [];
+    const imagenPortada = imagenesRaw.find(img => String(img.es_portada) === "1");
+    const imagenesSecundarias = imagenesRaw.filter(img => String(img.es_portada) !== "1");
+    const imagenes = imagenPortada ? [imagenPortada, ...imagenesSecundarias] : imagenesSecundarias;
+
     const isOwner = subasta && UsuarioActualID === Number(subasta.id_vendedor);
     const hasPujas = pujas.length > 0;
     const canCancelOrEdit = subasta && (subasta.estado === 'BORRADOR' || subasta.estado === 'ACTIVA') && !hasPujas;
 
-    // 🌟 NUEVO: Lógica de Fechas (Avance 4)
-    // El estado puede venir del backend o actualizarse vía Pusher al cerrar
-    const isCerrada = subasta && (estadoSubasta === 'FINALIZADA' || subasta.estado === 'FINALIZADA' || isPast(new Date(subasta.fecha_fin)));
-    const tiempoRestante = subasta && !isCerrada 
-        ? formatDistanceToNow(new Date(subasta.fecha_fin), { addSuffix: true, locale: es })
-        : "Subasta Finalizada";
+    const misPujas = pujas.filter(p => Number(p.id_usuario) === UsuarioActualID);
+    const hePujado = misPujas.length > 0;
+    const soyLiderActual = pujas.length > 0 && Number(pujas[0].id_usuario) === UsuarioActualID;
+    const fuiSuperado = hePujado && !soyLiderActual;
 
-    // ACCIONES DE LA MÁQUINA DE ESTADOS 
+// 🌟 RELOJ DE PRECISIÓN Y CUENTA REGRESIVA
+    useEffect(() => {
+        if (!subasta?.fecha_fin) return;
+
+        const calcularTiempo = () => {
+            const fechaFin = new Date(subasta.fecha_fin);
+            
+            // Si el tiempo ya expiró
+            if (isPast(fechaFin)) {
+                setTiempoAgotado(true);
+                setContadorRestante("00:00:00");
+                return true; // Señal para detener el intervalo
+            }
+
+            // Calculamos la diferencia exacta
+            const duracion = intervalToDuration({
+                start: new Date(),
+                end: fechaFin
+            });
+
+            // Formateamos para que siempre tenga 2 dígitos (ej: 05:09:02)
+            const dias = duracion.days > 0 ? `${duracion.days}d ` : '';
+            const horas = String(duracion.hours || 0).padStart(2, '0');
+            const minutos = String(duracion.minutes || 0).padStart(2, '0');
+            const segundos = String(duracion.seconds || 0).padStart(2, '0');
+
+            setContadorRestante(`${dias}${horas}:${minutos}:${segundos}`);
+            return false;
+        };
+
+        // Ejecutamos una vez inmediatamente para evitar el parpadeo de 1 segundo al cargar
+        const finalizado = calcularTiempo();
+
+        // Iniciamos el tic-tac solo si la subasta sigue viva
+        let interval;
+        if (!finalizado) {
+            interval = setInterval(() => {
+                const termino = calcularTiempo();
+                if (termino) clearInterval(interval); // Apaga el reloj cuando llega a cero
+            }, 1000); 
+        }
+
+        return () => clearInterval(interval);
+    }, [subasta?.fecha_fin]);
+
+    // 🌟 LÓGICA DE CIERRE ACTUALIZADA
+    const isCerrada = subasta && (estadoSubasta === 'FINALIZADA' || subasta.estado === 'FINALIZADA' || tiempoAgotado);
+    const textoTiempoPantalla = isCerrada ? "Subasta Finalizada" : contadorRestante;
+
     const handlePublish = async () => {
         try {
             await SubastaService.publishSubasta(id);
@@ -65,7 +115,6 @@ export function DetailSubasta() {
         }
     };
 
-    // 🌟 NUEVO: Lógica de Puja (Avance 4)
     const handlePujar = async (e) => {
         e.preventDefault();
         const monto = parseFloat(montoOfertar);
@@ -85,25 +134,52 @@ export function DetailSubasta() {
                 monto_ofertado: monto
             });
             toast.success("¡Puja registrada exitosamente!");
-            setMontoOfertar(''); // Limpiar input
+            setMontoOfertar(''); 
         } catch (err) {
             toast.error(err.response?.data?.message || "Error al registrar la puja");
         }
     };
 
-    // 🌟 NUEVO: Notificación de Puja Superada (Avance 4)
+    useEffect(() => {
+        let interval;
+        // 🌟 AGREGADO: Uso del arreglo "imagenes" en lugar de subasta?.imagenes
+        if (isAutoPlaying && imagenes.length > 1) {
+            interval = setInterval(() => {
+                setCurrentImgIdx((prev) => (prev + 1) % imagenes.length);
+            }, 5000); 
+        }
+        return () => clearInterval(interval);
+    }, [isAutoPlaying, imagenes.length]);
+
+    const nextImage = () => {
+        setIsAutoPlaying(false); 
+        setCurrentImgIdx((prev) => (prev + 1) % imagenes.length);
+    };
+
+    const prevImage = () => {
+        setIsAutoPlaying(false);
+        setCurrentImgIdx((prev) => (prev - 1 + imagenes.length) % imagenes.length);
+    };
+
+    // 🌟 AGREGADO: Función para los puntos del carrusel
+    const goToImage = (index) => {
+        setIsAutoPlaying(false);
+        setCurrentImgIdx(index);
+    };
+
     useEffect(() => {
         if (pujas.length > 0) {
-            const pujaLider = pujas[0]; 
-            const misPujas = pujas.filter(p => Number(p.id_usuario) === UsuarioActualID);
-            const yoTeniaLiderazgo = misPujas.length > 0 && Number(pujaLider.id_usuario) !== UsuarioActualID;
-
-            // Verificamos si la alerta ya se mostró para no saturar al recargar
-            if (yoTeniaLiderazgo && pujaLider.isNew) { 
-                toast.error("¡Tu puja ha sido superada!", { duration: 5000, icon: '⚠️' });
+            const liderActual = Number(pujas[0].id_usuario);
+            if (liderAnterior === UsuarioActualID && liderActual !== UsuarioActualID) {
+                toast.error("Puja ha sido superada", { 
+                    duration: 6000, 
+                    icon: '🚨',
+                    style: { background: '#7f1d1d', color: '#fff', fontWeight: 'bold' }
+                });
             }
+            setLiderAnterior(liderActual);
         }
-    }, [pujas, UsuarioActualID]);
+    }, [pujas, UsuarioActualID, liderAnterior]);
 
     useEffect(() => {
         const fetchDetalle = async () => {
@@ -144,7 +220,6 @@ export function DetailSubasta() {
         <div className="min-h-screen bg-black text-zinc-100 py-12 px-4 md:px-8">
             <div className="max-w-7xl mx-auto">
                 
-                {/* Cabecera con Botón Regresar */}
                 <button 
                     onClick={() => navigate("/subasta", { replace: true})} 
                     className="mb-8 flex items-center gap-2 text-zinc-500 hover:text-white transition-all group uppercase text-xs font-black tracking-widest"
@@ -154,30 +229,63 @@ export function DetailSubasta() {
 
                 <div className="flex flex-col lg:flex-row gap-10 items-stretch">
                     
-                    {/* ================= COLUMNA IZQUIERDA: EL OBJETO ================= */}
                     <div className="w-full lg:w-5/12 space-y-6">
                         <div className="bg-zinc-900/50 border border-zinc-800 rounded-[2rem] overflow-hidden backdrop-blur-sm sticky top-28">
                             
-                            {/* Imagen con Overlay de Gradiente */}
-                            <div className="aspect-video w-full bg-zinc-800 flex items-center justify-center relative group">
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
-                                {subasta.imagen_objeto ? (
+                            {/* 🌟 AGREGADO: Bloque completo del carrusel interactivo */}
+                            <div className="relative w-full aspect-square md:aspect-square lg:aspect-square bg-zinc-900/80 overflow-hidden group border-b border-zinc-800 shadow-2xl flex items-center justify-center">
+                                <span className="absolute top-6 left-6 bg-red-600 text-white text-[10px] font-black px-4 py-1 rounded-lg uppercase tracking-widest z-10 shadow-lg">
+                                    LOTE #{id}
+                                </span>
+                                
+                                {imagenes.length > 0 ? (
                                     <img 
-                                        src={`${IMAGE_URL}${subasta.imagen_objeto}`} 
+                                        src={`${IMAGE_URL}${imagenes[currentImgIdx].nombre_imagen}`} 
                                         alt="Objeto" 
-                                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" 
-                                        onError={(e) => { e.target.src = "https://via.placeholder.com/600x400?text=Hot+Wheels"; }}
+                                        className="w-full h-full object-contain p-4 transition-opacity duration-500 ease-in-out"
+                                        onError={(e) => { e.target.src = "https://via.placeholder.com/600x600?text=Hot+Wheels" }}
                                     />
                                 ) : (
-                                    <ImageIcon className="h-20 w-20 text-zinc-700" />
+                                    <div className="flex flex-col items-center gap-3 opacity-20">
+                                        <ImageIcon className="h-16 w-16 text-zinc-400" />
+                                        <span className="text-[10px] font-black uppercase tracking-widest">Sin Imágenes</span>
+                                    </div>
                                 )}
-                                <div className="absolute bottom-4 left-6">
-                                    <span className="bg-red-600 text-white text-[10px] font-black px-3 py-1 uppercase italic tracking-tighter rounded">Lote #{id}</span>
-                                </div>
+
+                                {imagenes.length > 1 && (
+                                    <>
+                                        <button 
+                                            onClick={prevImage} 
+                                            className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/60 text-white p-3 rounded-2xl opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-red-600 hover:scale-110 backdrop-blur-sm border border-zinc-700/50 z-20"
+                                        >
+                                            <ChevronLeft className="h-6 w-6" />
+                                        </button>
+
+                                        <button 
+                                            onClick={nextImage} 
+                                            className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/60 text-white p-3 rounded-2xl opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-red-600 hover:scale-110 backdrop-blur-sm border border-zinc-700/50 z-20"
+                                        >
+                                            <ChevronRight className="h-6 w-6" />
+                                        </button>
+
+                                        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-2 bg-black/40 px-4 py-2 rounded-full backdrop-blur-md border border-zinc-800/50 z-20">
+                                            {imagenes.map((_, idx) => (
+                                                <button 
+                                                    key={idx}
+                                                    onClick={() => goToImage(idx)}
+                                                    className={`h-2 rounded-full transition-all duration-300 ${
+                                                        idx === currentImgIdx 
+                                                        ? 'w-8 bg-red-600 shadow-[0_0_10px_rgba(220,38,38,0.8)]' 
+                                                        : 'w-2 bg-zinc-500 hover:bg-zinc-300'
+                                                    }`}
+                                                />
+                                            ))}
+                                        </div>
+                                    </>
+                                )}
                             </div>
                             
                             <div className="p-8">
-                                {/* PANEL DEL VENDEDOR */}
                                 {isOwner && subasta.estado === 'BORRADOR' && (
                                     <div className="mt-6 mb-8 p-4 bg-zinc-900/80 border border-blue-900/30 rounded-2xl">
                                         <p className="text-[10px] text-blue-400 font-black uppercase tracking-widest mb-3">Panel de Vendedor</p>
@@ -213,16 +321,22 @@ export function DetailSubasta() {
                                 <div className="flex items-center gap-2 mb-6 bg-zinc-900/50 w-fit px-4 py-2 rounded-xl border border-zinc-800">
                                     <UserCircle className="h-5 w-5 text-blue-500" />
                                     <span className="text-xs font-black text-zinc-500 uppercase tracking-widest">
-                                        Creador: <span className="text-zinc-200 ml-1">{subasta.vendedor || "Desconocido"}</span>
+                                        Vendedor: <span className="text-zinc-200 ml-1">{subasta.vendedor || "Desconocido"}</span>
                                     </span>
                                 </div>
                                     {subasta.nombre_objeto}
+                                    
                                 </h1>
-                                
+
+                                <p className="text-zinc-400 text-sm mb-6 leading-relaxed border-l-2 border-red-600 pl-4">
+                                    {subasta.descripcion_objeto}
+                                </p>
+                                            
                                 <div className="flex flex-wrap gap-2 mb-8">
+                                    
                                     <span className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border ${
                                         isCerrada 
-                                        ? 'bg-red-500/20 text-red-400 border-red-500/30' // 🌟 Cambio visual reactivo
+                                        ? 'bg-red-500/20 text-red-400 border-red-500/30' 
                                         : (subasta.estado === 'ACTIVA' ? 'bg-green-500/20 text-green-400 border-green-500/30' : 'bg-zinc-800 text-zinc-500 border-zinc-700')
                                     }`}>
                                         {isCerrada ? 'FINALIZADA' : subasta.estado}
@@ -239,7 +353,6 @@ export function DetailSubasta() {
                                 </div>
                                 </div>
 
-                                {/* Precios con Estilo Neón */}
                                 <div className="grid grid-cols-2 gap-6 bg-black/40 p-6 rounded-3xl border border-zinc-800/50 mb-8">
                                     <div className="space-y-1">
                                         <p className="text-[10px] text-zinc-500 font-black uppercase tracking-widest">Precio Inicial</p>
@@ -251,15 +364,14 @@ export function DetailSubasta() {
                                     </div>
                                 </div>
 
-                                {/* 🌟 TIEMPO RESTANTE REACTIVO (Avance 4) */}
                                 <div className="space-y-4 pt-4 border-t border-zinc-800/50">
                                     <div className="flex items-center justify-between text-xs">
                                         <div className="flex items-center gap-3 text-zinc-400 font-bold uppercase tracking-tighter">
                                             <Clock className="h-4 w-4 text-zinc-600" /> Tiempo Restante
                                         </div>
-                                        <span className={`font-mono font-black tracking-widest uppercase ${isCerrada ? 'text-red-600' : 'text-blue-500'}`}>
-                                            {tiempoRestante}
-                                        </span>
+                                    <span className={`font-mono font-black tracking-widest uppercase ${isCerrada ? 'text-red-600' : 'text-blue-500'}`}>
+                                        {textoTiempoPantalla}
+                                    </span>
                                     </div>
                                     <div className="flex items-center justify-between text-xs">
                                         <div className="flex items-center gap-3 text-red-500 font-bold uppercase tracking-tighter">
@@ -274,7 +386,6 @@ export function DetailSubasta() {
                         </div>
                     </div>
 
-                    {/* ================= COLUMNA DERECHA: HISTORIAL DE PUJAS ================= */}
                     <div className="w-full lg:w-7/12">
                         <div className="bg-zinc-900/30 border border-zinc-800 rounded-[2.5rem] p-8 md:p-10 shadow-2xl h-full flex flex-col">
                             
@@ -291,7 +402,15 @@ export function DetailSubasta() {
                                 </div>
                             </div>
 
-                            {/* 🌟 FORMULARIO DE PUJA (Avance 4) */}
+                            {fuiSuperado && !isCerrada && (
+                                <div className="mb-6 p-4 bg-red-900/20 border border-red-500/50 rounded-2xl flex items-center justify-center gap-3 animate-pulse shadow-[0_0_15px_rgba(239,68,68,0.2)]">
+                                    <AlertCircle className="h-6 w-6 text-red-500" />
+                                    <p className="text-red-500 font-black uppercase italic tracking-widest text-sm">
+                                        Puja ha sido superada
+                                    </p>
+                                </div>
+                            )}
+
                             {!isCerrada ? (
                                 !isOwner ? (
                                     <form onSubmit={handlePujar} className="mb-8 p-6 bg-black/40 rounded-3xl border border-yellow-500/30 flex flex-col gap-4">
@@ -332,7 +451,6 @@ export function DetailSubasta() {
                                 </div>
                             )}
 
-                            {/* LISTA DE PUJAS */}
                             {pujas.length === 0 ? (
                                 <div className="flex-1 flex flex-col items-center justify-center text-center py-20 bg-black/20 rounded-3xl border border-dashed border-zinc-800">
                                     <TrendingUp className="h-12 w-12 text-zinc-800 mb-4" />
@@ -364,7 +482,6 @@ export function DetailSubasta() {
                                                         {puja.postor}
                                                     </p>
                                                     <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest">
-                                                        {/* 🌟 FORMATEO DE FECHAS */}
                                                         {format(new Date(puja.fecha_hora), "dd MMM yyyy, HH:mm", { locale: es })}
                                                     </p>
                                                 </div>
