@@ -62,9 +62,7 @@ class subasta
             // Traemos las pujas del modelo
             $result = $subastaM->pujas($id);
             
-            // 🌟 BYPASS DE ARQUITECTURA 🌟
-            // Si el resultado está vacío o es false (cero pujas), 
-            // no usamos $response->toJSON() para evitar que lance el Error 404 por dentro.
+          
             if (empty($result)) {
                 // Imprimimos el éxito manualmente y matamos el proceso
                 http_response_code(200);

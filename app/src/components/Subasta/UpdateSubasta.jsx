@@ -13,7 +13,6 @@ import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 
-// 🌟 VALIDACIONES RÚBRICA 🌟
 const updateSchema = yup.object({
     fecha_inicio: yup.date().typeError('Fecha inválida').required('Inicio obligatorio'),
     fecha_fin: yup.date()
@@ -48,7 +47,7 @@ export function UpdateSubasta() {
                 const subasta = resSubasta.data.data;
                 const pujas = resPujas.data.success ? resPujas.data.data : [];
 
-                // 🌟 REGLAS DE NEGOCIO (RÚBRICA) 🌟
+           
                 // 1. ¿Ya inició?
                 const fechaInicioISO = subasta.fecha_inicio.replace(' ', 'T');
                 const yaInicio = subasta.estado !== 'BORRADOR' && new Date() >= new Date(fechaInicioISO);
@@ -62,7 +61,7 @@ export function UpdateSubasta() {
 
                 setSubastaOriginal(subasta);
 
-                // 🌟 PRECARGA DE DATOS 🌟
+                
                 // Adaptamos el formato SQL "YYYY-MM-DD HH:MM:SS" a "YYYY-MM-DDTHH:MM" para HTML5
                 const formatForInput = (dateString) => dateString.replace(' ', 'T').substring(0, 16);
 

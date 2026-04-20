@@ -46,7 +46,7 @@ export function DetailSubasta() {
     const soyLiderActual = pujas.length > 0 && Number(pujas[0].id_usuario) === UsuarioActualID;
     const fuiSuperado = hePujado && !soyLiderActual;
 
-// 🌟 RELOJ DE PRECISIÓN Y CUENTA REGRESIVA
+
     useEffect(() => {
         if (!subasta?.fecha_fin) return;
 
@@ -143,7 +143,7 @@ export function DetailSubasta() {
 
     useEffect(() => {
         let interval;
-        // 🌟 AGREGADO: Uso del arreglo "imagenes" en lugar de subasta?.imagenes
+       
         if (isAutoPlaying && imagenes.length > 1) {
             interval = setInterval(() => {
                 setCurrentImgIdx((prev) => (prev + 1) % imagenes.length);
@@ -162,7 +162,7 @@ export function DetailSubasta() {
         setCurrentImgIdx((prev) => (prev - 1 + imagenes.length) % imagenes.length);
     };
 
-    // 🌟 AGREGADO: Función para los puntos del carrusel
+  
     const goToImage = (index) => {
         setIsAutoPlaying(false);
         setCurrentImgIdx(index);
@@ -233,7 +233,7 @@ export function DetailSubasta() {
                     <div className="w-full lg:w-5/12 space-y-6">
                         <div className="bg-zinc-900/50 border border-zinc-800 rounded-[2rem] overflow-hidden backdrop-blur-sm sticky top-28">
                             
-                            {/* 🌟 AGREGADO: Bloque completo del carrusel interactivo */}
+                       
                             <div className="relative w-full aspect-square md:aspect-square lg:aspect-square bg-zinc-900/80 overflow-hidden group border-b border-zinc-800 shadow-2xl flex items-center justify-center">
                                 <span className="absolute top-6 left-6 bg-red-600 text-white text-[10px] font-black px-4 py-1 rounded-lg uppercase tracking-widest z-10 shadow-lg">
                                     LOTE #{id}

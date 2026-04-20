@@ -111,7 +111,7 @@ export function DetailUser() {
                             <DialogContent className="bg-zinc-950 border-zinc-800 text-white">
                                 <DialogHeader>
                                     <DialogTitle className="text-xl font-black uppercase italic text-blue-500">Actualizar Usuario</DialogTitle>
-                                    {/* 🌟 CORRECCIÓN: Descripción obligatoria para accesibilidad 🌟 */}
+                                   
                                     <DialogDescription className="text-zinc-400 text-xs mt-1">
                                         Modifica la información básica del usuario.
                                     </DialogDescription>

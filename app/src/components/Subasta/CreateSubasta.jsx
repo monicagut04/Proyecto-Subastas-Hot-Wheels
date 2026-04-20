@@ -7,14 +7,14 @@ import toast from 'react-hot-toast';
 import { Gavel, ArrowLeft, CarFront, CalendarClock, DollarSign, UserCheck } from "lucide-react";
 
 import SubastaService from '../../services/SubastaService';
-import { useAuth } from '../../hooks/useAuth'; // 🌟 Tu contexto de Usuario Simulado
+import { useAuth } from '../../hooks/useAuth'; // 
 
 // UI de Shadcn
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 
-// 🌟 REGLAS DE NEGOCIO (RÚBRICA AVANCE 3) 🌟
+
 const subastaSchema = yup.object({
     id_auto: yup.string().required('Debes seleccionar un vehículo para subastar'),
     fecha_inicio: yup.date()
